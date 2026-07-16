@@ -14,6 +14,8 @@ class FormThemeState {
   static double titleSize = 24.0;
   static double sectionSize = 18.0;
   static double questionSize = 14.0;
+
+  static bool skeletonMode = true;
 }
 
 // --- Colors ---
@@ -148,23 +150,31 @@ class SectionCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 Container(
-                  width: 160,
-                  height: FormThemeState.sectionSize - 2,
-                  decoration: BoxDecoration(
-                    color: AdiyogiColors.greyBody.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(4),
+                if (FormThemeState.skeletonMode) ...[
+                  Container(
+                    width: 160,
+                    height: FormThemeState.sectionSize - 2,
+                    decoration: BoxDecoration(
+                      color: AdiyogiColors.greyBody.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  width: 240,
-                  height: FormThemeState.questionSize - 4,
-                  decoration: BoxDecoration(
-                    color: AdiyogiColors.greyMuted.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(3),
+                  const SizedBox(height: 8),
+                  Container(
+                    width: 240,
+                    height: FormThemeState.questionSize - 4,
+                    decoration: BoxDecoration(
+                      color: AdiyogiColors.greyMuted.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
                   ),
-                ),
+                ] else ...[
+                  Text(title, style: AdiyogiTextStyles.sectionHeading(context)),
+                  if (description.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(description, style: AdiyogiTextStyles.bodyMedium(context)),
+                  ],
+                ],
               ],
             ),
           ),
@@ -234,14 +244,17 @@ class FormQuestionWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 100,
-          height: FormThemeState.questionSize - 2,
-          decoration: BoxDecoration(
-            color: AdiyogiColors.inkBlack.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(3),
-          ),
-        ),
+        if (FormThemeState.skeletonMode)
+          Container(
+            width: 100,
+            height: FormThemeState.questionSize - 2,
+            decoration: BoxDecoration(
+              color: AdiyogiColors.inkBlack.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(3),
+            ),
+          )
+        else
+          Text(question.label, style: AdiyogiTextStyles.labelMedium(context)),
         const SizedBox(height: 12),
         _buildInputField(context),
       ],

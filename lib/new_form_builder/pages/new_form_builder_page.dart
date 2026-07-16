@@ -1151,9 +1151,28 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Live Preview',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              Row(
+                children: [
+                  const Text(
+                    'Live Preview',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(width: 16),
+                  ToggleButtons(
+                    isSelected: [FormThemeState.skeletonMode, !FormThemeState.skeletonMode],
+                    onPressed: (index) {
+                      setState(() {
+                        FormThemeState.skeletonMode = index == 0;
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(6),
+                    constraints: const BoxConstraints(minHeight: 24, minWidth: 70),
+                    children: const [
+                      Text('Skeleton', style: TextStyle(fontSize: 10)),
+                      Text('Real Text', style: TextStyle(fontSize: 10)),
+                    ],
+                  ),
+                ],
               ),
               Text(
                 'Layout: ${_layouts.firstWhere((element) => element.id == _selectedLayoutId).name}',
