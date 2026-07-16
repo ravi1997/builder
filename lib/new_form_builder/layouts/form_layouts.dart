@@ -1484,3 +1484,270 @@ class ReviewBeforeSubmitLayout extends StatelessWidget {
     );
   }
 }
+
+class AccordionMultipleOpenForm extends StatefulWidget {
+  final FormSchema schema;
+  final Map<String, dynamic> formValues;
+  final Function(String, dynamic) onValueChanged;
+
+  const AccordionMultipleOpenForm({
+    super.key,
+    required this.schema,
+    required this.formValues,
+    required this.onValueChanged,
+  });
+
+  @override
+  State<AccordionMultipleOpenForm> createState() => _AccordionMultipleOpenFormState();
+}
+
+class _AccordionMultipleOpenFormState extends State<AccordionMultipleOpenForm> {
+  final Map<String, bool> _expanded = {};
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: widget.schema.sections.map((sec) {
+        final open = _expanded[sec.id] ?? true;
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ExpansionTile(
+            initiallyExpanded: open,
+            onExpansionChanged: (val) => setState(() => _expanded[sec.id] = val),
+            title: Text(sec.title),
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: FormSectionWidget(
+                  section: sec,
+                  formValues: widget.formValues,
+                  onValueChanged: widget.onValueChanged,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class TreeNavigationForm extends StatefulWidget {
+  final FormSchema schema;
+  final Map<String, dynamic> formValues;
+  final Function(String, dynamic) onValueChanged;
+
+  const TreeNavigationForm({
+    super.key,
+    required this.schema,
+    required this.formValues,
+    required this.onValueChanged,
+  });
+
+  @override
+  State<TreeNavigationForm> createState() => _TreeNavigationFormState();
+}
+
+class _TreeNavigationFormState extends State<TreeNavigationForm> {
+  String? _selectedSecId;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.schema.sections.isNotEmpty) {
+      _selectedSecId = widget.schema.sections.first.id;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final active = widget.schema.sections.firstWhere((s) => s.id == _selectedSecId, orElse: () => widget.schema.sections.first);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 1,
+          child: Column(
+            children: widget.schema.sections.map((sec) {
+              final activeSec = _selectedSecId == sec.id;
+              return ListTile(
+                leading: Icon(activeSec ? Icons.folder_open : Icons.folder),
+                title: Text(sec.title, style: TextStyle(fontSize: 12, fontWeight: activeSec ? FontWeight.bold : FontWeight.normal)),
+                onTap: () => setState(() => _selectedSecId = sec.id),
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          flex: 2,
+          child: SectionCard(
+            title: active.title,
+            description: active.description,
+            child: FormSectionWidget(section: active, formValues: widget.formValues, onValueChanged: widget.onValueChanged),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ProgressBarForm extends StatelessWidget {
+  final FormSchema schema;
+  final Map<String, dynamic> formValues;
+  final Function(String, dynamic) onValueChanged;
+
+  const ProgressBarForm({
+    super.key,
+    required this.schema,
+    required this.formValues,
+    required this.onValueChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const LinearProgressIndicator(value: 0.65),
+        const SizedBox(height: 24),
+        ClassicLongForm(schema: schema, formValues: formValues, onValueChanged: onValueChanged),
+      ],
+    );
+  }
+}
+
+class StepIndicatorForm extends StatelessWidget {
+  final FormSchema schema;
+  final Map<String, dynamic> formValues;
+  final Function(String, dynamic) onValueChanged;
+
+  const StepIndicatorForm({
+    super.key,
+    required this.schema,
+    required this.formValues,
+    required this.onValueChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            CircleAvatar(radius: 12, child: Text('1', style: TextStyle(fontSize: 10))),
+            SizedBox(width: 8),
+            Text('Step 1 of 3'),
+          ],
+        ),
+        const SizedBox(height: 24),
+        ClassicLongForm(schema: schema, formValues: formValues, onValueChanged: onValueChanged),
+      ],
+    );
+  }
+}
+
+class ConversationalForm extends StatelessWidget {
+  final FormSchema schema;
+  final Map<String, dynamic> formValues;
+  final Function(String, dynamic) onValueChanged;
+
+  const ConversationalForm({
+    super.key,
+    required this.schema,
+    required this.formValues,
+    required this.onValueChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text('Press Enter or Tap Button to proceed', style: TextStyle(fontSize: 12, color: Colors.grey)),
+        const SizedBox(height: 24),
+        ClassicLongForm(schema: schema, formValues: formValues, onValueChanged: onValueChanged),
+      ],
+    );
+  }
+}
+
+class ChatStyleForm extends StatelessWidget {
+  final FormSchema schema;
+  final Map<String, dynamic> formValues;
+  final Function(String, dynamic) onValueChanged;
+
+  const ChatStyleForm({
+    super.key,
+    required this.schema,
+    required this.formValues,
+    required this.onValueChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('AI Form Assistant:', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(8)),
+          child: const Text('Hello! Please complete the requested details.'),
+        ),
+        const SizedBox(height: 24),
+        ClassicLongForm(schema: schema, formValues: formValues, onValueChanged: onValueChanged),
+      ],
+    );
+  }
+}
+
+class DrawerForm extends StatelessWidget {
+  final FormSchema schema;
+  final Map<String, dynamic> formValues;
+  final Function(String, dynamic) onValueChanged;
+
+  const DrawerForm({
+    super.key,
+    required this.schema,
+    required this.formValues,
+    required this.onValueChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text('Form is docked to right side drawer', style: TextStyle(color: Colors.grey)),
+        const SizedBox(height: 24),
+        ClassicLongForm(schema: schema, formValues: formValues, onValueChanged: onValueChanged),
+      ],
+    );
+  }
+}
+
+class ModalForm extends StatelessWidget {
+  final FormSchema schema;
+  final Map<String, dynamic> formValues;
+  final Function(String, dynamic) onValueChanged;
+
+  const ModalForm({
+    super.key,
+    required this.schema,
+    required this.formValues,
+    required this.onValueChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          child: ClassicLongForm(schema: schema, formValues: formValues, onValueChanged: onValueChanged),
+        ),
+      ),
+    );
+  }
+}
+

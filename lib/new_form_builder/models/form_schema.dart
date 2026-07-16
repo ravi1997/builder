@@ -1,9 +1,13 @@
 enum QuestionType {
   text,
+  email,
+  number,
   dropdown,
   radio,
   checkbox,
   date,
+  fileUpload,
+  longText,
 }
 
 class FormQuestion {
@@ -55,8 +59,8 @@ class FormSchema {
 
   static FormSchema get mock {
     return const FormSchema(
-      title: 'Structured Intelligence Capture',
-      description: 'Convert raw awareness into validated data.',
+      title: 'Employee Registration',
+      description: 'Design workspace preview form capture.',
       sections: [
         FormSection(
           id: 'personal',
@@ -92,16 +96,16 @@ class FormSchema {
             FormQuestion(
               id: 'email',
               label: 'Email Address',
-              type: QuestionType.text,
+              type: QuestionType.email,
               required: true,
               placeholder: 'name@domain.com',
             ),
             FormQuestion(
-              id: 'phone',
-              label: 'Phone Number',
-              type: QuestionType.text,
-              required: true,
-              placeholder: '+1 (555) 000-0000',
+              id: 'salary_expectation',
+              label: 'Salary Expectation (k\$)',
+              type: QuestionType.number,
+              required: false,
+              placeholder: '120',
             ),
           ],
         ),
@@ -184,6 +188,14 @@ class FormSchema {
               dependencyFieldId: 'has_id',
               dependencyValue: true,
             ),
+            FormQuestion(
+              id: 'id_file',
+              label: 'Upload ID Document',
+              type: QuestionType.fileUpload,
+              required: true,
+              dependencyFieldId: 'has_id',
+              dependencyValue: true,
+            ),
           ],
         ),
         FormSection(
@@ -191,6 +203,12 @@ class FormSchema {
           title: 'Review & Verify',
           description: 'Acknowledge information correctness',
           questions: [
+            FormQuestion(
+              id: 'cover_letter',
+              label: 'Cover Letter / Bio Notes',
+              type: QuestionType.longText,
+              placeholder: 'Tell us about yourself...',
+            ),
             FormQuestion(
               id: 'agree_terms',
               label: 'I certify that the information provided is accurate and true.',

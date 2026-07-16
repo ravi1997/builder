@@ -243,6 +243,20 @@ class FormQuestionWidget extends StatelessWidget {
           value: value as String? ?? '',
           onChanged: onChanged,
         );
+      case QuestionType.email:
+        return TextInputField(
+          placeholder: question.placeholder ?? 'email@domain.com',
+          value: value as String? ?? '',
+          onChanged: onChanged,
+          suffixIcon: const Icon(Icons.email, size: 16, color: Colors.grey),
+        );
+      case QuestionType.number:
+        return TextInputField(
+          placeholder: question.placeholder ?? '0',
+          value: value as String? ?? '',
+          onChanged: onChanged,
+          suffixIcon: const Icon(Icons.numbers, size: 16, color: Colors.grey),
+        );
       case QuestionType.dropdown:
         return DropdownField(
           options: question.options ?? [],
@@ -260,6 +274,37 @@ class FormQuestionWidget extends StatelessWidget {
           options: question.options ?? [],
           value: value as String?,
           onChanged: onChanged,
+        );
+      case QuestionType.fileUpload:
+        return Container(
+          height: 60,
+          decoration: BoxDecoration(
+            color: AdiyogiColors.surfaceWhite,
+            borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
+            border: Border.all(color: AdiyogiColors.borderLight),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Icon(Icons.cloud_upload, size: 16, color: Colors.grey),
+              SizedBox(width: 8),
+              Text('Upload File (PDF, PNG, JPG)', style: TextStyle(fontSize: 12, color: Colors.grey)),
+            ],
+          ),
+        );
+      case QuestionType.longText:
+        return Container(
+          height: 80,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: AdiyogiColors.surfaceWhite,
+            borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
+            border: Border.all(color: AdiyogiColors.borderLight),
+          ),
+          child: const Padding(
+            padding: EdgeInsets.all(12),
+            child: Text('Type long message...', style: TextStyle(fontSize: 12, color: Colors.grey)),
+          ),
         );
       case QuestionType.date:
         return GestureDetector(

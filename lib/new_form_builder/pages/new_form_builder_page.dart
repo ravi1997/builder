@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../models/form_schema.dart';
 import '../widgets/reusable_widgets.dart';
 import '../layouts/form_layouts.dart';
-import '../models/builder_config.dart';
+import '../models/form_theme_config.dart';
+import '../models/animation_config.dart';
+import '../models/component_style_config.dart';
 
 class LayoutOption {
   final String id;
@@ -98,9 +100,8 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
 
   // Config models for Step 2
   FormThemeConfig _themeConfig = const FormThemeConfig();
-  SpacingConfig _spacingConfig = const SpacingConfig();
-  ShapeStyleConfig _shapeConfig = const ShapeStyleConfig();
   AnimationConfig _animConfig = const AnimationConfig();
+  ComponentStyleConfig _componentConfig = const ComponentStyleConfig();
 
   // List of all 24 layouts
   final List<LayoutOption> _layouts = const [
@@ -259,6 +260,62 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
       category: 'Card',
     ),
     LayoutOption(
+      id: 'accordion_multiple',
+      name: 'Accordion Multiple Open',
+      description: 'Multiple sections can expand or collapse simultaneously.',
+      icon: Icons.unfold_more_double,
+      category: 'Single Page',
+    ),
+    LayoutOption(
+      id: 'nav_tree',
+      name: 'Tree Navigation Form',
+      description: 'Hierarchical nested folder trees representing sections.',
+      icon: Icons.account_tree_outlined,
+      category: 'Navigation',
+    ),
+    LayoutOption(
+      id: 'prog_bar',
+      name: 'Linear Progress Bar',
+      description: 'Top persistent completion bar indicator.',
+      icon: Icons.linear_scale,
+      category: 'Progress',
+    ),
+    LayoutOption(
+      id: 'prog_step',
+      name: 'Numerical Step Indicator',
+      description: 'Numerical bubbles showing completed steps.',
+      icon: Icons.looks_one_outlined,
+      category: 'Progress',
+    ),
+    LayoutOption(
+      id: 'adv_conversational',
+      name: 'Conversational Form',
+      description: 'Focused overlays prompting sequentially.',
+      icon: Icons.text_snippet_outlined,
+      category: 'Advanced',
+    ),
+    LayoutOption(
+      id: 'adv_chat',
+      name: 'Chat Style Form',
+      description: 'Interactive AI dialogue capturing inputs.',
+      icon: Icons.chat_bubble_outline,
+      category: 'Advanced',
+    ),
+    LayoutOption(
+      id: 'adv_drawer',
+      name: 'Drawer Styled Form',
+      description: 'Form panel slides in from the right edge.',
+      icon: Icons.view_sidebar_outlined,
+      category: 'Advanced',
+    ),
+    LayoutOption(
+      id: 'adv_modal',
+      name: 'Modal Dialog Form',
+      description: 'Form displays centered inside a popup window.',
+      icon: Icons.picture_in_picture_outlined,
+      category: 'Advanced',
+    ),
+    LayoutOption(
       id: 'adv_conditional',
       name: 'Conditional Dynamic Form',
       description: 'Show or hide elements depending on answers.',
@@ -285,29 +342,20 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
       FormThemeState.fontFamily = 'Roboto';
     } else if (_themeConfig.fontFamily == FontStylePreset.poppins) {
       FormThemeState.fontFamily = 'Poppins';
-    } else if (_themeConfig.fontFamily == FontStylePreset.serif) {
+    } else if (_themeConfig.fontFamily == FontStylePreset.lora) {
       FormThemeState.fontFamily = 'Lora';
     } else {
       FormThemeState.fontFamily = 'Instrument Sans';
     }
 
-    if (_shapeConfig.borderRadius == ShapeStylePreset.square) {
-      FormThemeState.borderRadius = 0.0;
-    } else if (_shapeConfig.borderRadius == ShapeStylePreset.slightRounded) {
-      FormThemeState.borderRadius = 6.0;
-    } else if (_shapeConfig.borderRadius == ShapeStylePreset.extraRounded) {
-      FormThemeState.borderRadius = 24.0;
-    } else {
-      FormThemeState.borderRadius = 12.0;
-    }
+    FormThemeState.borderRadius = _themeConfig.borderRadius;
   }
 
   void _resetConfig() {
     setState(() {
       _themeConfig = const FormThemeConfig();
-      _spacingConfig = const SpacingConfig();
-      _shapeConfig = const ShapeStyleConfig();
       _animConfig = const AnimationConfig();
+      _componentConfig = const ComponentStyleConfig();
       _syncThemeState();
     });
   }
@@ -323,10 +371,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
         textColor: random.nextBool() ? const Color(0xFF121218) : const Color(0xFFFFFFFF),
         background: random.nextBool() ? const Color(0xFFF7F7F8) : const Color(0xFF1B1B21),
         fontFamily: FontStylePreset.values[random.nextInt(FontStylePreset.values.length)],
-      );
-
-      _shapeConfig = ShapeStyleConfig(
-        borderRadius: ShapeStylePreset.values[random.nextInt(ShapeStylePreset.values.length)],
+        borderRadius: [0.0, 6.0, 12.0, 24.0][random.nextInt(4)],
       );
 
       _syncThemeState();
@@ -678,7 +723,50 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
         return [
           _buildThemePresetSelector(),
           const SizedBox(height: 12),
-          _buildColorPickerRow(),
+          const Text('Colors', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildColorIndicator('Primary', _themeConfig.primary, (color) {
+                setState(() {
+                  _themeConfig = _themeConfig.copyWith(primary: color);
+                  _syncThemeState();
+                });
+              }),
+              _buildColorIndicator('Secondary', _themeConfig.secondary, (color) {
+                setState(() {
+                  _themeConfig = _themeConfig.copyWith(secondary: color);
+                  _syncThemeState();
+                });
+              }),
+              _buildColorIndicator('Accent', _themeConfig.accent, (color) {
+                setState(() {
+                  _themeConfig = _themeConfig.copyWith(accent: color);
+                  _syncThemeState();
+                });
+              }),
+              _buildColorIndicator('Background', _themeConfig.background, (color) {
+                setState(() {
+                  _themeConfig = _themeConfig.copyWith(background: color);
+                  _syncThemeState();
+                });
+              }),
+              _buildColorIndicator('Card', _themeConfig.cardColor, (color) {
+                setState(() {
+                  _themeConfig = _themeConfig.copyWith(cardColor: color);
+                  _syncThemeState();
+                });
+              }),
+              _buildColorIndicator('Text', _themeConfig.textColor, (color) {
+                setState(() {
+                  _themeConfig = _themeConfig.copyWith(textColor: color);
+                  _syncThemeState();
+                });
+              }),
+            ],
+          ),
         ];
       case 'typography':
         return [
@@ -695,28 +783,80 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
               }
             },
           ),
+          const SizedBox(height: 12),
+          _buildSliderControl('Title Size', _themeConfig.titleSize, 16.0, 36.0, (val) {
+            setState(() => _themeConfig = _themeConfig.copyWith(titleSize: val));
+          }),
+          _buildSliderControl('Section Size', _themeConfig.sectionSize, 12.0, 24.0, (val) {
+            setState(() => _themeConfig = _themeConfig.copyWith(sectionSize: val));
+          }),
+          _buildSliderControl('Question Size', _themeConfig.questionSize, 10.0, 18.0, (val) {
+            setState(() => _themeConfig = _themeConfig.copyWith(questionSize: val));
+          }),
         ];
       case 'spacing':
         return [
-          _buildSliderControl('Form Spacing', _spacingConfig.formPadding, 8.0, 48.0, (val) {
-            setState(() => _spacingConfig = _spacingConfig.copyWith(formPadding: val));
+          _buildSliderControl('Form Padding', _themeConfig.formPadding, 8.0, 48.0, (val) {
+            setState(() => _themeConfig = _themeConfig.copyWith(formPadding: val));
           }),
-          _buildSliderControl('Question Spacing', _spacingConfig.questionSpacing, 4.0, 32.0, (val) {
-            setState(() => _spacingConfig = _spacingConfig.copyWith(questionSpacing: val));
+          _buildSliderControl('Section Spacing', _themeConfig.sectionSpacing, 8.0, 48.0, (val) {
+            setState(() => _themeConfig = _themeConfig.copyWith(sectionSpacing: val));
+          }),
+          _buildSliderControl('Question Spacing', _themeConfig.questionSpacing, 4.0, 32.0, (val) {
+            setState(() => _themeConfig = _themeConfig.copyWith(questionSpacing: val));
+          }),
+          _buildSliderControl('Input Padding', _themeConfig.inputPadding, 4.0, 24.0, (val) {
+            setState(() => _themeConfig = _themeConfig.copyWith(inputPadding: val));
           }),
         ];
       case 'shapes':
         return [
           _buildDropdownControl<ShapeStylePreset>(
             'Border Radius',
-            _shapeConfig.borderRadius,
+            _themeConfig.borderRadius == 0.0
+                ? ShapeStylePreset.square
+                : _themeConfig.borderRadius == 6.0
+                    ? ShapeStylePreset.slightRounded
+                    : _themeConfig.borderRadius == 24.0
+                        ? ShapeStylePreset.extraRounded
+                        : ShapeStylePreset.rounded,
             ShapeStylePreset.values,
             (val) {
               if (val != null) {
                 setState(() {
-                  _shapeConfig = _shapeConfig.copyWith(borderRadius: val);
+                  double radiusValue = 12.0;
+                  if (val == ShapeStylePreset.square) radiusValue = 0.0;
+                  if (val == ShapeStylePreset.slightRounded) radiusValue = 6.0;
+                  if (val == ShapeStylePreset.extraRounded) radiusValue = 24.0;
+                  if (val == ShapeStylePreset.pill) radiusValue = 30.0;
+
+                  _themeConfig = _themeConfig.copyWith(
+                    borderRadius: radiusValue,
+                  );
                   _syncThemeState();
                 });
+              }
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildDropdownControl<CardStylePreset>(
+            'Card Style',
+            _componentConfig.cardStyle,
+            CardStylePreset.values,
+            (val) {
+              if (val != null) {
+                setState(() => _componentConfig = _componentConfig.copyWith(cardStyle: val));
+              }
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildDropdownControl<BorderStylePreset>(
+            'Border Thickness',
+            _componentConfig.borderStyle,
+            BorderStylePreset.values,
+            (val) {
+              if (val != null) {
+                setState(() => _componentConfig = _componentConfig.copyWith(borderStyle: val));
               }
             },
           ),
@@ -727,7 +867,22 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
             'Page Transition Style',
             _animConfig.transition,
             PageTransitionPreset.values,
-            (val) => setState(() => _animConfig = _animConfig.copyWith(transition: val)),
+            (val) {
+              if (val != null) {
+                setState(() => _animConfig = _animConfig.copyWith(transition: val));
+              }
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildDropdownControl<AnimationCurvePreset>(
+            'Animation Curve',
+            _animConfig.curve,
+            AnimationCurvePreset.values,
+            (val) {
+              if (val != null) {
+                setState(() => _animConfig = _animConfig.copyWith(curve: val));
+              }
+            },
           ),
         ];
       default:
@@ -822,25 +977,6 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
     );
   }
 
-  Widget _buildColorPickerRow() {
-    return Row(
-      children: [
-        _buildColorIndicator('Primary', _themeConfig.primary, (color) {
-          setState(() {
-            _themeConfig = _themeConfig.copyWith(primary: color);
-            _syncThemeState();
-          });
-        }),
-        const SizedBox(width: 8),
-        _buildColorIndicator('Background', _themeConfig.background, (color) {
-          setState(() {
-            _themeConfig = _themeConfig.copyWith(background: color);
-            _syncThemeState();
-          });
-        }),
-      ],
-    );
-  }
 
   Widget _buildColorIndicator(String label, Color color, ValueChanged<Color> onChanged) {
     return Column(
@@ -996,6 +1132,22 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
         return SectionCardForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
       case 'kanban_sections':
         return KanbanStyleFormSections(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+      case 'accordion_multiple':
+        return AccordionMultipleOpenForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+      case 'nav_tree':
+        return TreeNavigationForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+      case 'prog_bar':
+        return ProgressBarForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+      case 'prog_step':
+        return StepIndicatorForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+      case 'adv_conversational':
+        return ConversationalForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+      case 'adv_chat':
+        return ChatStyleForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+      case 'adv_drawer':
+        return DrawerForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+      case 'adv_modal':
+        return ModalForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
       case 'adv_conditional':
         return ConditionalDynamicForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
       case 'adv_review':
