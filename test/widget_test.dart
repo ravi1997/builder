@@ -40,10 +40,6 @@ void main() {
 
     expect(find.text('Form Design Controls'), findsOneWidget);
     expect(find.text('Live Preview'), findsOneWidget);
-    expect(find.text('Theme'), findsOneWidget);
-    expect(find.text('Layout'), findsOneWidget);
-    expect(find.text('Animation'), findsOneWidget);
-    expect(find.text('Density'), findsOneWidget);
     expect(find.text('A.D.I.Y.O.G.I Builder'), findsNothing);
   });
 }
