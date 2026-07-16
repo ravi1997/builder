@@ -389,13 +389,13 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: AdiyogiColors.surfaceWhite,
+      backgroundColor: AdiyogiColors.shellBackground,
       body: SafeArea(
         child: Column(
           children: [
             // --- TOP TOOLBAR ---
             _buildTopToolbar(context),
-            Divider(height: 1, color: AdiyogiColors.borderLight),
+            Divider(height: 1, color: AdiyogiColors.shellBorder),
 
             // --- MAIN CONTENT SPLIT ---
             Expanded(
@@ -406,7 +406,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
                   _wizardStep == 1
                       ? _buildLeftSidebarStep1(context, filteredLayouts)
                       : _buildLeftSidebarStep2(context),
-                   VerticalDivider(width: 1, color: AdiyogiColors.borderLight),
+                   VerticalDivider(width: 1, color: AdiyogiColors.shellBorder),
 
                   // --- RIGHT PREVIEW CANVAS ---
                   Expanded(
@@ -423,7 +423,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
 
   Widget _buildTopToolbar(BuildContext context) {
     return Container(
-      color: AdiyogiColors.pureWhite,
+      color: AdiyogiColors.shellWhite,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -433,7 +433,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AdiyogiColors.charcoal,
+                  color: AdiyogiColors.shellCharcoal,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Text(
@@ -461,9 +461,9 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
               width: 320,
               height: 38,
               decoration: BoxDecoration(
-                color: AdiyogiColors.surfaceWhite,
+                color: AdiyogiColors.shellBackground,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AdiyogiColors.borderLight),
+                border: Border.all(color: AdiyogiColors.shellBorder),
               ),
               child: TextField(
                 onChanged: (val) => setState(() => _searchQuery = val),
@@ -485,7 +485,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
                   onPressed: _resetConfig,
                   icon: const Icon(Icons.restart_alt, size: 16),
                   label: const Text('Reset', style: TextStyle(fontSize: 12)),
-                  style: TextButton.styleFrom(foregroundColor: AdiyogiColors.greyBody),
+                  style: TextButton.styleFrom(foregroundColor: AdiyogiColors.shellGreyBody),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton.icon(
@@ -493,8 +493,8 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
                   icon: const Icon(Icons.shuffle, size: 16),
                   label: const Text('Randomize', style: TextStyle(fontSize: 12)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AdiyogiColors.charcoal,
-                    foregroundColor: AdiyogiColors.pureWhite,
+                    backgroundColor: AdiyogiColors.shellCharcoal,
+                    foregroundColor: AdiyogiColors.shellWhite,
                   ),
                 ),
               ],
@@ -519,11 +519,11 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
     final active = _previewMode == mode;
     return OutlinedButton.icon(
       onPressed: () => setState(() => _previewMode = mode),
-      icon: Icon(icon, size: 16, color: active ? AdiyogiColors.pureWhite : AdiyogiColors.charcoal),
-      label: Text(mode, style: TextStyle(fontSize: 12, color: active ? AdiyogiColors.pureWhite : AdiyogiColors.charcoal)),
+      icon: Icon(icon, size: 16, color: active ? AdiyogiColors.shellWhite : AdiyogiColors.shellCharcoal),
+      label: Text(mode, style: TextStyle(fontSize: 12, color: active ? AdiyogiColors.shellWhite : AdiyogiColors.shellCharcoal)),
       style: OutlinedButton.styleFrom(
-        backgroundColor: active ? AdiyogiColors.charcoal : Colors.transparent,
-        side: BorderSide(color: active ? AdiyogiColors.charcoal : AdiyogiColors.borderLight),
+        backgroundColor: active ? AdiyogiColors.shellCharcoal : Colors.transparent,
+        side: BorderSide(color: active ? AdiyogiColors.shellCharcoal : AdiyogiColors.shellBorder),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       ),
@@ -533,7 +533,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
   Widget _buildLeftSidebarStep1(BuildContext context, List<LayoutOption> filteredLayouts) {
     return Container(
       width: 340,
-      color: AdiyogiColors.pureWhite,
+      color: AdiyogiColors.shellWhite,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -544,7 +544,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
               style: AdiyogiTextStyles.sectionHeading(context).copyWith(fontSize: 16),
             ),
           ),
-          Divider(height: 1, color: AdiyogiColors.borderLight),
+          Divider(height: 1, color: AdiyogiColors.shellBorder),
 
           // Horizontal category picker
           SizedBox(
@@ -568,7 +568,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
                         cat,
                         style: TextStyle(
                           fontSize: 12,
-                          color: active ? AdiyogiColors.inkBlack : AdiyogiColors.greyBody,
+                          color: active ? AdiyogiColors.shellCharcoal : AdiyogiColors.shellGreyBody,
                           fontWeight: active ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
@@ -578,7 +578,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
               }).toList(),
             ),
           ),
-          Divider(height: 1, color: AdiyogiColors.borderLight),
+          Divider(height: 1, color: AdiyogiColors.shellBorder),
 
           // Layout List
           Expanded(
@@ -588,9 +588,9 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
                 final l = filteredLayouts[index];
                 final selected = _selectedLayoutId == l.id;
                 return Material(
-                  color: selected ? AdiyogiColors.surfaceWhite : Colors.transparent,
+                  color: selected ? AdiyogiColors.shellBackground : Colors.transparent,
                   child: ListTile(
-                    leading: Icon(l.icon, color: selected ? AdiyogiColors.charcoal : AdiyogiColors.greyMuted),
+                    leading: Icon(l.icon, color: selected ? AdiyogiColors.shellCharcoal : AdiyogiColors.shellGreyMuted),
                     title: Text(
                       l.name,
                       style: AdiyogiTextStyles.labelMedium(context).copyWith(
@@ -609,7 +609,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
               },
             ),
           ),
-          Divider(height: 1, color: AdiyogiColors.borderLight),
+          Divider(height: 1, color: AdiyogiColors.shellBorder),
 
           // CONTINUE BUTTON
           Padding(
@@ -621,8 +621,8 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
                 });
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AdiyogiColors.charcoal,
-                foregroundColor: AdiyogiColors.pureWhite,
+                backgroundColor: AdiyogiColors.shellCharcoal,
+                foregroundColor: AdiyogiColors.shellWhite,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
@@ -637,7 +637,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
   Widget _buildLeftSidebarStep2(BuildContext context) {
     return Container(
       width: 340,
-      color: AdiyogiColors.pureWhite,
+      color: AdiyogiColors.shellWhite,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -650,9 +650,9 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
                   onTap: () => setState(() => _wizardStep = 1),
                   child: Row(
                     children: [
-                      Icon(Icons.arrow_back, size: 16, color: AdiyogiColors.greyBody),
+                      Icon(Icons.arrow_back, size: 16, color: AdiyogiColors.shellGreyBody),
                       const SizedBox(width: 8),
-                      Text('Back to Layouts', style: TextStyle(fontSize: 13, color: AdiyogiColors.greyBody)),
+                      Text('Back to Layouts', style: TextStyle(fontSize: 13, color: AdiyogiColors.shellGreyBody)),
                     ],
                   ),
                 ),
@@ -666,7 +666,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
               style: AdiyogiTextStyles.sectionHeading(context).copyWith(fontSize: 16),
             ),
           ),
-          Divider(height: 1, color: AdiyogiColors.borderLight),
+          Divider(height: 1, color: AdiyogiColors.shellBorder),
 
           // Scrollable Categories list containing their respective controls inline when active
           Expanded(
@@ -679,9 +679,9 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
                 return Column(
                   children: [
                     Material(
-                      color: selected ? AdiyogiColors.surfaceWhite : Colors.transparent,
+                      color: selected ? AdiyogiColors.shellBackground : Colors.transparent,
                       child: ListTile(
-                        leading: Icon(cat.icon, color: selected ? AdiyogiColors.charcoal : AdiyogiColors.greyMuted),
+                        leading: Icon(cat.icon, color: selected ? AdiyogiColors.shellCharcoal : AdiyogiColors.shellGreyMuted),
                         title: Text(
                           cat.name,
                           style: AdiyogiTextStyles.labelMedium(context).copyWith(
@@ -700,13 +700,13 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
                     if (selected)
                       Container(
                         padding: const EdgeInsets.all(16),
-                        color: AdiyogiColors.surfaceWhite,
+                        color: AdiyogiColors.shellBackground,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: _buildActiveCategoryControls(cat.id),
                         ),
                       ),
-                    Divider(height: 1, color: AdiyogiColors.borderLight),
+                    Divider(height: 1, color: AdiyogiColors.shellBorder),
                   ],
                 );
               },
@@ -899,7 +899,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
-            border: Border.all(color: AdiyogiColors.borderLight),
+            border: Border.all(color: AdiyogiColors.shellBorder),
             borderRadius: BorderRadius.circular(6),
           ),
           child: DropdownButtonHideUnderline(
@@ -936,7 +936,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
           value: value,
           min: min,
           max: max,
-          activeColor: AdiyogiColors.charcoal,
+          activeColor: AdiyogiColors.shellCharcoal,
           onChanged: onChanged,
         ),
       ],
@@ -995,7 +995,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
             decoration: BoxDecoration(
               color: color,
               shape: BoxShape.circle,
-              border: Border.all(color: AdiyogiColors.borderLight),
+              border: Border.all(color: AdiyogiColors.shellBorder),
             ),
           ),
         ),
@@ -1022,7 +1022,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
       children: [
         // Live Preview Header bar
         Container(
-          color: AdiyogiColors.pureWhite,
+          color: AdiyogiColors.shellWhite,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1038,7 +1038,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
             ],
           ),
         ),
-        Divider(height: 1, color: AdiyogiColors.borderLight),
+        Divider(height: 1, color: AdiyogiColors.shellBorder),
 
         // Preview Canvas Box
         Expanded(

@@ -14,6 +14,15 @@ class FormThemeState {
 
 // --- Colors ---
 class AdiyogiColors {
+  // Static shell colors (unchangeable, keeps the editor UI consistent)
+  static const Color shellWhite = Color(0xFFFFFFFF);
+  static const Color shellBackground = Color(0xFFF7F7F8);
+  static const Color shellCharcoal = Color(0xFF1B1B21);
+  static const Color shellGreyBody = Color(0xFF44454C);
+  static const Color shellGreyMuted = Color(0xFF9E9E9E);
+  static const Color shellBorder = Color(0xFFE5E7EB);
+
+  // Dynamic preview colors (binds to current theme state)
   static Color get pureWhite => FormThemeState.cardColor;
   static Color get surfaceSubtle => const Color(0xFFEDEEF1);
   static Color get surfaceWhite => FormThemeState.background;
