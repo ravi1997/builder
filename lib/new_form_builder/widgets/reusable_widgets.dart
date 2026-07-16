@@ -148,20 +148,20 @@ class SectionCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
+                 Container(
                   width: 160,
-                  height: 16,
+                  height: FormThemeState.sectionSize - 2,
                   decoration: BoxDecoration(
-                    color: AdiyogiColors.greyBody.withOpacity(0.2),
+                    color: AdiyogiColors.greyBody.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   width: 240,
-                  height: 10,
+                  height: FormThemeState.questionSize - 4,
                   decoration: BoxDecoration(
-                    color: AdiyogiColors.greyMuted.withOpacity(0.15),
+                    color: AdiyogiColors.greyMuted.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
@@ -236,9 +236,9 @@ class FormQuestionWidget extends StatelessWidget {
       children: [
         Container(
           width: 100,
-          height: 12,
+          height: FormThemeState.questionSize - 2,
           decoration: BoxDecoration(
-            color: AdiyogiColors.inkBlack.withOpacity(0.15),
+            color: AdiyogiColors.inkBlack.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(3),
           ),
         ),
