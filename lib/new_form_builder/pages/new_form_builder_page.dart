@@ -944,38 +944,159 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
   }
 
   Widget _buildThemePresetSelector() {
-    final presets = ['minimal', 'dark', 'material', 'survey'];
-    return _buildDropdownControl<String>(
-      'Theme Preset',
-      _themeConfig.themePreset,
-      presets,
-      (val) {
-        if (val == 'dark') {
-          setState(() {
-            _themeConfig = _themeConfig.copyWith(
-              themePreset: val,
-              primary: Colors.white,
-              background: const Color(0xFF121218),
-              textColor: Colors.white,
-              cardColor: const Color(0xFF1B1B21),
-            );
-            _syncThemeState();
-          });
-        } else {
-          setState(() {
-            _themeConfig = _themeConfig.copyWith(
-              themePreset: val,
-              primary: const Color(0xFF1B1B21),
-              background: const Color(0xFFF7F7F8),
-              textColor: const Color(0xFF121218),
-              cardColor: Colors.white,
-            );
-            _syncThemeState();
-          });
-        }
-      },
+    final presets = const [
+      ThemePresetOption(
+        id: 'minimal',
+        name: 'Minimal',
+        icon: Icons.crop_din,
+        primary: Color(0xFF1B1B21),
+        background: Color(0xFFF7F7F8),
+        cardColor: Color(0xFFFFFFFF),
+        textColor: Color(0xFF121218),
+      ),
+      ThemePresetOption(
+        id: 'dark',
+        name: 'Dark Mode',
+        icon: Icons.dark_mode_outlined,
+        primary: Color(0xFFFFFFFF),
+        background: Color(0xFF121218),
+        cardColor: Color(0xFF1B1B21),
+        textColor: Color(0xFFFFFFFF),
+      ),
+      ThemePresetOption(
+        id: 'glassmorphism',
+        name: 'Glassmorphism',
+        icon: Icons.blur_on,
+        primary: Color(0xFF3F51B5),
+        background: Color(0xFFE0E6ED),
+        cardColor: Color(0x99FFFFFF),
+        textColor: Color(0xFF1C2D42),
+      ),
+      ThemePresetOption(
+        id: 'material',
+        name: 'Material',
+        icon: Icons.layers_outlined,
+        primary: Color(0xFF6200EE),
+        background: Color(0xFFF5F5F5),
+        cardColor: Color(0xFFFFFFFF),
+        textColor: Color(0xFF212121),
+      ),
+      ThemePresetOption(
+        id: 'survey',
+        name: 'Survey Teal',
+        icon: Icons.assignment_outlined,
+        primary: Color(0xFF00796B),
+        background: Color(0xFFE0F2F1),
+        cardColor: Color(0xFFFFFFFF),
+        textColor: Color(0xFF004D40),
+      ),
+      ThemePresetOption(
+        id: 'neumorphism',
+        name: 'Neumorphism',
+        icon: Icons.tonality,
+        primary: Color(0xFF5C6BC0),
+        background: Color(0xFFE0E0E0),
+        cardColor: Color(0xFFE0E0E0),
+        textColor: Color(0xFF333333),
+      ),
+      ThemePresetOption(
+        id: 'enterprise',
+        name: 'Enterprise Blue',
+        icon: Icons.business,
+        primary: Color(0xFF0D47A1),
+        background: Color(0xFFECEFF1),
+        cardColor: Color(0xFFFFFFFF),
+        textColor: Color(0xFF263238),
+      ),
+      ThemePresetOption(
+        id: 'rounded',
+        name: 'Modern Pink',
+        icon: Icons.circle_outlined,
+        primary: Color(0xFFE91E63),
+        background: Color(0xFFFFF0F5),
+        cardColor: Color(0xFFFFFFFF),
+        textColor: Color(0xFF4A0033),
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text('Theme Preset', style: TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        ...presets.map((preset) {
+          final isSelected = _themeConfig.themePreset == preset.id;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  _themeConfig = _themeConfig.copyWith(
+                    themePreset: preset.id,
+                    primary: preset.primary,
+                    background: preset.background,
+                    cardColor: preset.cardColor,
+                    textColor: preset.textColor,
+                  );
+                  _syncThemeState();
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: isSelected ? AdiyogiColors.shellBackground : AdiyogiColors.shellWhite,
+                  border: Border.all(
+                    color: isSelected ? AdiyogiColors.shellCharcoal : AdiyogiColors.shellBorder,
+                    width: isSelected ? 1.5 : 1.0,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(preset.icon, size: 16, color: isSelected ? AdiyogiColors.shellCharcoal : AdiyogiColors.shellGreyBody),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        preset.name,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: AdiyogiColors.shellCharcoal,
+                        ),
+                      ),
+                    ),
+                    // Swatches
+                    Row(
+                      children: [
+                        _buildMiniSwatch(preset.primary),
+                        const SizedBox(width: 4),
+                        _buildMiniSwatch(preset.background),
+                        const SizedBox(width: 4),
+                        _buildMiniSwatch(preset.cardColor),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }),
+      ],
     );
   }
+
+  Widget _buildMiniSwatch(Color color) {
+    return Container(
+      width: 10,
+      height: 10,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.3), width: 0.5),
+      ),
+    );
+  }
+
 
 
   Widget _buildColorIndicator(String label, Color color, ValueChanged<Color> onChanged) {
@@ -1162,4 +1283,24 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
       _formValues[fieldId] = value;
     });
   }
+}
+
+class ThemePresetOption {
+  final String id;
+  final String name;
+  final IconData icon;
+  final Color primary;
+  final Color background;
+  final Color cardColor;
+  final Color textColor;
+
+  const ThemePresetOption({
+    required this.id,
+    required this.name,
+    required this.icon,
+    required this.primary,
+    required this.background,
+    required this.cardColor,
+    required this.textColor,
+  });
 }
