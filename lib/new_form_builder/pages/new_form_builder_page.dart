@@ -21,6 +21,21 @@ class LayoutOption {
   });
 }
 
+class DesignCategoryOption {
+  final String id;
+  final String name;
+  final String description;
+  final IconData icon;
+
+  const DesignCategoryOption({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.icon,
+  });
+}
+
+
 class NewFormBuilderPage extends StatefulWidget {
   const NewFormBuilderPage({super.key});
 
@@ -45,6 +60,41 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
   String _selectedLayoutId = 'classic';
   String _searchQuery = '';
   String _selectedCategory = 'All';
+  // Active category in style step
+  String _activeDesignCategory = 'theme';
+
+  final List<DesignCategoryOption> _designCategories = const [
+    DesignCategoryOption(
+      id: 'theme',
+      name: 'Theme & Palette',
+      description: 'Customize primary, background, and text colors.',
+      icon: Icons.palette,
+    ),
+    DesignCategoryOption(
+      id: 'typography',
+      name: 'Typography & Fonts',
+      description: 'Adjust font families and heading weights.',
+      icon: Icons.text_fields,
+    ),
+    DesignCategoryOption(
+      id: 'spacing',
+      name: 'Density & Spacing',
+      description: 'Tune paddings, margins, and question spacing.',
+      icon: Icons.space_bar,
+    ),
+    DesignCategoryOption(
+      id: 'shapes',
+      name: 'Shapes & Borders',
+      description: 'Control card rounding, input borders, and card styles.',
+      icon: Icons.rounded_corner,
+    ),
+    DesignCategoryOption(
+      id: 'animation',
+      name: 'Transition & Speed',
+      description: 'Set page transitions and speed modifiers.',
+      icon: Icons.animation,
+    ),
+  ];
 
   // Config models for Step 2
   FormThemeConfig _themeConfig = const FormThemeConfig();
@@ -573,63 +623,48 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
           ),
           Divider(height: 1, color: AdiyogiColors.borderLight),
 
-          // Scrollable Settings List
+          // Scrollable Categories list containing their respective controls inline when active
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildCategorySection('Theme', [
-                  _buildThemePresetSelector(),
-                  const SizedBox(height: 12),
-                  _buildColorPickerRow(),
-                ]),
-                _buildCategorySection('Typography', [
-                  _buildDropdownControl<FontStylePreset>(
-                    'Font Family',
-                    _themeConfig.fontFamily,
-                    FontStylePreset.values,
-                    (val) {
-                      if (val != null) {
-                        setState(() {
-                          _themeConfig = _themeConfig.copyWith(fontFamily: val);
-                          _syncThemeState();
-                        });
-                      }
-                    },
-                  ),
-                ]),
-                _buildCategorySection('Density & Spacing', [
-                  _buildSliderControl('Form Spacing', _spacingConfig.formPadding, 8.0, 48.0, (val) {
-                    setState(() => _spacingConfig = _spacingConfig.copyWith(formPadding: val));
-                  }),
-                  _buildSliderControl('Question Spacing', _spacingConfig.questionSpacing, 4.0, 32.0, (val) {
-                    setState(() => _spacingConfig = _spacingConfig.copyWith(questionSpacing: val));
-                  }),
-                ]),
-                _buildCategorySection('Shapes', [
-                  _buildDropdownControl<ShapeStylePreset>(
-                    'Border Radius',
-                    _shapeConfig.borderRadius,
-                    ShapeStylePreset.values,
-                    (val) {
-                      if (val != null) {
-                        setState(() {
-                          _shapeConfig = _shapeConfig.copyWith(borderRadius: val);
-                          _syncThemeState();
-                        });
-                      }
-                    },
-                  ),
-                ]),
-                _buildCategorySection('Animation', [
-                  _buildDropdownControl<PageTransitionPreset>(
-                    'Page Transition Style',
-                    _animConfig.transition,
-                    PageTransitionPreset.values,
-                    (val) => setState(() => _animConfig = _animConfig.copyWith(transition: val)),
-                  ),
-                ]),
-              ],
+            child: ListView.builder(
+              itemCount: _designCategories.length,
+              itemBuilder: (context, index) {
+                final cat = _designCategories[index];
+                final selected = _activeDesignCategory == cat.id;
+
+                return Column(
+                  children: [
+                    Material(
+                      color: selected ? AdiyogiColors.surfaceWhite : Colors.transparent,
+                      child: ListTile(
+                        leading: Icon(cat.icon, color: selected ? AdiyogiColors.charcoal : AdiyogiColors.greyMuted),
+                        title: Text(
+                          cat.name,
+                          style: AdiyogiTextStyles.labelMedium(context).copyWith(
+                            fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
+                        subtitle: Text(
+                          cat.description,
+                          style: AdiyogiTextStyles.uiMicro(context),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        onTap: () => setState(() => _activeDesignCategory = cat.id),
+                      ),
+                    ),
+                    if (selected)
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        color: AdiyogiColors.surfaceWhite,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: _buildActiveCategoryControls(cat.id),
+                        ),
+                      ),
+                    Divider(height: 1, color: AdiyogiColors.borderLight),
+                  ],
+                );
+              },
             ),
           ),
         ],
@@ -637,20 +672,67 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
     );
   }
 
-  Widget _buildCategorySection(String title, List<Widget> children) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: AdiyogiColors.borderLight),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: ExpansionTile(
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-        childrenPadding: const EdgeInsets.all(12),
-        children: children,
-      ),
-    );
+  List<Widget> _buildActiveCategoryControls(String categoryId) {
+    switch (categoryId) {
+      case 'theme':
+        return [
+          _buildThemePresetSelector(),
+          const SizedBox(height: 12),
+          _buildColorPickerRow(),
+        ];
+      case 'typography':
+        return [
+          _buildDropdownControl<FontStylePreset>(
+            'Font Family',
+            _themeConfig.fontFamily,
+            FontStylePreset.values,
+            (val) {
+              if (val != null) {
+                setState(() {
+                  _themeConfig = _themeConfig.copyWith(fontFamily: val);
+                  _syncThemeState();
+                });
+              }
+            },
+          ),
+        ];
+      case 'spacing':
+        return [
+          _buildSliderControl('Form Spacing', _spacingConfig.formPadding, 8.0, 48.0, (val) {
+            setState(() => _spacingConfig = _spacingConfig.copyWith(formPadding: val));
+          }),
+          _buildSliderControl('Question Spacing', _spacingConfig.questionSpacing, 4.0, 32.0, (val) {
+            setState(() => _spacingConfig = _spacingConfig.copyWith(questionSpacing: val));
+          }),
+        ];
+      case 'shapes':
+        return [
+          _buildDropdownControl<ShapeStylePreset>(
+            'Border Radius',
+            _shapeConfig.borderRadius,
+            ShapeStylePreset.values,
+            (val) {
+              if (val != null) {
+                setState(() {
+                  _shapeConfig = _shapeConfig.copyWith(borderRadius: val);
+                  _syncThemeState();
+                });
+              }
+            },
+          ),
+        ];
+      case 'animation':
+        return [
+          _buildDropdownControl<PageTransitionPreset>(
+            'Page Transition Style',
+            _animConfig.transition,
+            PageTransitionPreset.values,
+            (val) => setState(() => _animConfig = _animConfig.copyWith(transition: val)),
+          ),
+        ];
+      default:
+        return [];
+    }
   }
 
   Widget _buildDropdownControl<T>(String label, T current, List<T> values, ValueChanged<T?> onChanged) {
