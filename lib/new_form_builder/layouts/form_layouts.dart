@@ -72,7 +72,7 @@ class _CollapsibleSectionsFormState extends State<CollapsibleSectionsForm> {
             color: AdiyogiColors.pureWhite,
             clipBehavior: Clip.antiAlias,
             shape: RoundedRectangleBorder(
-              side: const BorderSide(color: AdiyogiColors.borderLight),
+              side: BorderSide(color: AdiyogiColors.borderLight),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -143,7 +143,7 @@ class _AccordionSingleOpenFormState extends State<AccordionSingleOpenForm> {
             color: AdiyogiColors.pureWhite,
             clipBehavior: Clip.antiAlias,
             shape: RoundedRectangleBorder(
-              side: const BorderSide(color: AdiyogiColors.borderLight),
+              side: BorderSide(color: AdiyogiColors.borderLight),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -671,7 +671,7 @@ class _LeftSidebarNavigationFormState extends State<LeftSidebarNavigationForm> {
         Container(
           width: 160,
           padding: const EdgeInsets.only(right: 16),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             border: Border(right: BorderSide(color: AdiyogiColors.borderLight)),
           ),
           child: Column(
@@ -749,7 +749,7 @@ class _RightSidebarNavigationFormState extends State<RightSidebarNavigationForm>
         Container(
           width: 160,
           padding: const EdgeInsets.only(left: 16),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             border: Border(left: BorderSide(color: AdiyogiColors.borderLight)),
           ),
           child: Column(
@@ -938,9 +938,9 @@ class _BreadcrumbNavigationLayoutState extends State<BreadcrumbNavigationLayout>
       children: [
         Row(
           children: [
-            const Text('Form', style: TextStyle(color: AdiyogiColors.greyMuted)),
-            const Icon(Icons.chevron_right, size: 16, color: AdiyogiColors.greyMuted),
-            Text(active.title, style: const TextStyle(fontWeight: FontWeight.bold, color: AdiyogiColors.charcoal)),
+            Text('Form', style: TextStyle(color: AdiyogiColors.greyMuted)),
+            Icon(Icons.chevron_right, size: 16, color: AdiyogiColors.greyMuted),
+            Text(active.title, style: TextStyle(fontWeight: FontWeight.bold, color: AdiyogiColors.charcoal)),
           ],
         ),
         const SizedBox(height: 24),
@@ -1284,7 +1284,7 @@ class QuestionCardForm extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 16),
           color: AdiyogiColors.pureWhite,
           shape: RoundedRectangleBorder(
-            side: const BorderSide(color: AdiyogiColors.borderLight),
+            side: BorderSide(color: AdiyogiColors.borderLight),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(

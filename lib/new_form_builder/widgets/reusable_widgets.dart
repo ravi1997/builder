@@ -2,79 +2,89 @@
 import 'package:flutter/material.dart';
 import '../models/form_schema.dart';
 
+class FormThemeState {
+  static Color primary = const Color(0xFF1B1B21);
+  static Color background = const Color(0xFFF7F7F8);
+  static Color cardColor = const Color(0xFFFFFFFF);
+  static Color textColor = const Color(0xFF121218);
+  static Color borderLight = const Color(0xFFC9CDD2);
+  static String fontFamily = 'Instrument Sans';
+  static double borderRadius = 16.0;
+}
+
 // --- Colors ---
 class AdiyogiColors {
-  static const Color pureWhite = Color(0xFFFFFFFF);
-  static const Color surfaceSubtle = Color(0xFFEDEEF1);
-  static const Color surfaceWhite = Color(0xFFF7F7F8);
-  static const Color charcoal = Color(0xFF1B1B21);
-  static const Color greyBody = Color(0xFF61646B);
-  static const Color greyMuted = Color(0xFF94979E);
-  static const Color inkBlack = Color(0xFF121218);
-  static const Color slateMid = Color(0xFF44454C);
-  static const Color borderLight = Color(0xFFC9CDD2);
+  static Color get pureWhite => FormThemeState.cardColor;
+  static Color get surfaceSubtle => const Color(0xFFEDEEF1);
+  static Color get surfaceWhite => FormThemeState.background;
+  static Color get charcoal => FormThemeState.primary;
+  static Color get greyBody => FormThemeState.textColor.withOpacity(0.7);
+  static Color get greyMuted => FormThemeState.textColor.withOpacity(0.5);
+  static Color get inkBlack => FormThemeState.textColor;
+  static Color get slateMid => FormThemeState.textColor.withOpacity(0.85);
+  static Color get borderLight => FormThemeState.borderLight;
 }
 
 // --- Typography Helpers ---
 class AdiyogiTextStyles {
-  static TextStyle displayHeading(BuildContext context) => const TextStyle(
-        fontFamily: 'Lora',
+  static TextStyle displayHeading(BuildContext context) => TextStyle(
+        fontFamily: FormThemeState.fontFamily,
         fontSize: 36, // Scaled for app usage
         fontWeight: FontWeight.w600,
         height: 1.2,
         color: AdiyogiColors.inkBlack,
       );
 
-  static TextStyle sectionHeading(BuildContext context) => const TextStyle(
-        fontFamily: 'Lora',
+  static TextStyle sectionHeading(BuildContext context) => TextStyle(
+        fontFamily: FormThemeState.fontFamily,
         fontSize: 24,
         fontWeight: FontWeight.w600,
         height: 1.3,
         color: AdiyogiColors.inkBlack,
       );
 
-  static TextStyle cardHeading(BuildContext context) => const TextStyle(
-        fontFamily: 'Lora',
+  static TextStyle cardHeading(BuildContext context) => TextStyle(
+        fontFamily: FormThemeState.fontFamily,
         fontSize: 20,
         fontWeight: FontWeight.w600,
         height: 1.4,
         color: AdiyogiColors.inkBlack,
       );
 
-  static TextStyle bodyLarge(BuildContext context) => const TextStyle(
-        fontFamily: 'Instrument Sans',
+  static TextStyle bodyLarge(BuildContext context) => TextStyle(
+        fontFamily: FormThemeState.fontFamily,
         fontSize: 16,
         fontWeight: FontWeight.w400,
         height: 1.5,
         color: AdiyogiColors.greyBody,
       );
 
-  static TextStyle bodyMedium(BuildContext context) => const TextStyle(
-        fontFamily: 'Instrument Sans',
+  static TextStyle bodyMedium(BuildContext context) => TextStyle(
+        fontFamily: FormThemeState.fontFamily,
         fontSize: 14,
         fontWeight: FontWeight.w400,
         height: 1.4,
         color: AdiyogiColors.greyBody,
       );
 
-  static TextStyle labelLarge(BuildContext context) => const TextStyle(
-        fontFamily: 'Instrument Sans',
+  static TextStyle labelLarge(BuildContext context) => TextStyle(
+        fontFamily: FormThemeState.fontFamily,
         fontSize: 16,
         fontWeight: FontWeight.w500,
         height: 1.4,
         color: AdiyogiColors.inkBlack,
       );
 
-  static TextStyle labelMedium(BuildContext context) => const TextStyle(
-        fontFamily: 'Instrument Sans',
+  static TextStyle labelMedium(BuildContext context) => TextStyle(
+        fontFamily: FormThemeState.fontFamily,
         fontSize: 14,
         fontWeight: FontWeight.w500,
         height: 1.4,
         color: AdiyogiColors.inkBlack,
       );
 
-  static TextStyle uiMicro(BuildContext context) => const TextStyle(
-        fontFamily: 'Inter',
+  static TextStyle uiMicro(BuildContext context) => TextStyle(
+        fontFamily: FormThemeState.fontFamily,
         fontSize: 12,
         fontWeight: FontWeight.w500,
         height: 1.2,
@@ -102,7 +112,7 @@ class SectionCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
         color: AdiyogiColors.pureWhite,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(FormThemeState.borderRadius),
         border: Border.all(color: AdiyogiColors.borderLight, width: 1),
         boxShadow: const [
           BoxShadow(
@@ -117,7 +127,7 @@ class SectionCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(color: AdiyogiColors.surfaceSubtle, width: 1),
               ),
@@ -269,7 +279,7 @@ class FormQuestionWidget extends StatelessWidget {
               placeholder: question.placeholder ?? 'YYYY-MM-DD',
               value: value as String? ?? '',
               onChanged: onChanged,
-              suffixIcon: const Icon(Icons.calendar_month, color: AdiyogiColors.greyMuted),
+              suffixIcon: Icon(Icons.calendar_month, color: AdiyogiColors.greyMuted),
             ),
           ),
         );
@@ -354,7 +364,7 @@ class DropdownField extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
           ),
-          const Icon(Icons.keyboard_arrow_down, size: 16, color: AdiyogiColors.greyMuted),
+          Icon(Icons.keyboard_arrow_down, size: 16, color: AdiyogiColors.greyMuted),
         ],
       ),
     );
@@ -484,7 +494,7 @@ class FormNavigationButton extends StatelessWidget {
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           foregroundColor: AdiyogiColors.charcoal,
-          side: const BorderSide(color: AdiyogiColors.borderLight),
+          side: BorderSide(color: AdiyogiColors.borderLight),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),

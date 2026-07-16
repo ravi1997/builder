@@ -1,7 +1,9 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/form_schema.dart';
 import '../widgets/reusable_widgets.dart';
 import '../layouts/form_layouts.dart';
+import '../models/builder_config.dart';
 
 class LayoutOption {
   final String id;
@@ -27,6 +29,9 @@ class NewFormBuilderPage extends StatefulWidget {
 }
 
 class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
+  // Wizard state: 1 = Layout Selection, 2 = Theme & Customization
+  int _wizardStep = 1;
+
   // Mock form schema
   final FormSchema _schema = FormSchema.mock;
 
@@ -41,9 +46,14 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
   String _searchQuery = '';
   String _selectedCategory = 'All';
 
-  // List of all 24 layouts (conversational chat layout removed)
+  // Config models for Step 2
+  FormThemeConfig _themeConfig = const FormThemeConfig();
+  SpacingConfig _spacingConfig = const SpacingConfig();
+  ShapeStyleConfig _shapeConfig = const ShapeStyleConfig();
+  AnimationConfig _animConfig = const AnimationConfig();
+
+  // List of all 24 layouts
   final List<LayoutOption> _layouts = const [
-    // Single Page Layouts
     LayoutOption(
       id: 'classic',
       name: 'Classic Long Form',
@@ -79,8 +89,6 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
       icon: Icons.grid_on,
       category: 'Single Page',
     ),
-
-    // Wizard / Step Based Layouts
     LayoutOption(
       id: 'wizard_section',
       name: 'Section Per Page Wizard',
@@ -116,8 +124,6 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
       icon: Icons.swipe,
       category: 'Wizard / Step',
     ),
-
-    // Navigation Based Layouts
     LayoutOption(
       id: 'nav_left',
       name: 'Left Sidebar Navigation',
@@ -153,8 +159,6 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
       icon: Icons.arrow_right_alt,
       category: 'Navigation',
     ),
-
-    // Progress Based Layouts
     LayoutOption(
       id: 'prog_horizontal',
       name: 'Horizontal Progress Stepper',
@@ -183,8 +187,6 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
       icon: Icons.fact_check_outlined,
       category: 'Progress',
     ),
-
-    // Card Based Layouts
     LayoutOption(
       id: 'card_question',
       name: 'Question Card Layout',
@@ -206,8 +208,6 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
       icon: Icons.view_column_outlined,
       category: 'Card',
     ),
-
-    // Advanced Layouts
     LayoutOption(
       id: 'adv_conditional',
       name: 'Conditional Dynamic Form',
@@ -224,9 +224,68 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
     ),
   ];
 
+  // Sync builder configuration parameters with the static global FormThemeState
+  void _syncThemeState() {
+    FormThemeState.primary = _themeConfig.primary;
+    FormThemeState.background = _themeConfig.background;
+    FormThemeState.cardColor = _themeConfig.cardColor;
+    FormThemeState.textColor = _themeConfig.textColor;
+
+    if (_themeConfig.fontFamily == FontStylePreset.roboto) {
+      FormThemeState.fontFamily = 'Roboto';
+    } else if (_themeConfig.fontFamily == FontStylePreset.poppins) {
+      FormThemeState.fontFamily = 'Poppins';
+    } else if (_themeConfig.fontFamily == FontStylePreset.serif) {
+      FormThemeState.fontFamily = 'Lora';
+    } else {
+      FormThemeState.fontFamily = 'Instrument Sans';
+    }
+
+    if (_shapeConfig.borderRadius == ShapeStylePreset.square) {
+      FormThemeState.borderRadius = 0.0;
+    } else if (_shapeConfig.borderRadius == ShapeStylePreset.slightRounded) {
+      FormThemeState.borderRadius = 6.0;
+    } else if (_shapeConfig.borderRadius == ShapeStylePreset.extraRounded) {
+      FormThemeState.borderRadius = 24.0;
+    } else {
+      FormThemeState.borderRadius = 12.0;
+    }
+  }
+
+  void _resetConfig() {
+    setState(() {
+      _themeConfig = const FormThemeConfig();
+      _spacingConfig = const SpacingConfig();
+      _shapeConfig = const ShapeStyleConfig();
+      _animConfig = const AnimationConfig();
+      _syncThemeState();
+    });
+  }
+
+  void _randomizeConfig() {
+    final random = Random();
+    setState(() {
+      final randomColor = Color.fromARGB(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
+      _themeConfig = FormThemeConfig(
+        primary: randomColor,
+        secondary: randomColor.withValues(alpha: 0.7),
+        accent: randomColor.withValues(alpha: 0.5),
+        textColor: random.nextBool() ? const Color(0xFF121218) : const Color(0xFFFFFFFF),
+        background: random.nextBool() ? const Color(0xFFF7F7F8) : const Color(0xFF1B1B21),
+        fontFamily: FontStylePreset.values[random.nextInt(FontStylePreset.values.length)],
+      );
+
+      _shapeConfig = ShapeStyleConfig(
+        borderRadius: ShapeStylePreset.values[random.nextInt(ShapeStylePreset.values.length)],
+      );
+
+      _syncThemeState();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Filter layouts
+    // Filter layouts for Step 1
     final filteredLayouts = _layouts.where((l) {
       final matchesSearch = l.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           l.description.toLowerCase().contains(_searchQuery.toLowerCase());
@@ -241,16 +300,18 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
           children: [
             // --- TOP TOOLBAR ---
             _buildTopToolbar(context),
-            const Divider(height: 1, color: AdiyogiColors.borderLight),
+            Divider(height: 1, color: AdiyogiColors.borderLight),
 
             // --- MAIN CONTENT SPLIT ---
             Expanded(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // --- LEFT SIDEBAR (Width 320) ---
-                  _buildLeftSidebar(context, filteredLayouts),
-                  const VerticalDivider(width: 1, color: AdiyogiColors.borderLight),
+                  // --- LEFT SIDEBAR (Width 340) ---
+                  _wizardStep == 1
+                      ? _buildLeftSidebarStep1(context, filteredLayouts)
+                      : _buildLeftSidebarStep2(context),
+                   VerticalDivider(width: 1, color: AdiyogiColors.borderLight),
 
                   // --- RIGHT PREVIEW CANVAS ---
                   Expanded(
@@ -272,7 +333,6 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Left Logo / Title
           Row(
             children: [
               Container(
@@ -285,7 +345,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
                   'A.D.I.Y.O.G.I',
                   style: TextStyle(
                     fontFamily: 'Instrument Sans',
-                    color: AdiyogiColors.pureWhite,
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,
                     fontSize: 12,
@@ -294,33 +354,56 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
               ),
               const SizedBox(width: 12),
               Text(
-                'Form Layout Explorer',
+                _wizardStep == 1 ? 'Form Layout Explorer' : 'Form Layout & Theme Builder',
                 style: AdiyogiTextStyles.sectionHeading(context).copyWith(fontSize: 18),
               ),
             ],
           ),
 
-          // Center Search
-          Container(
-            width: 320,
-            height: 38,
-            decoration: BoxDecoration(
-              color: AdiyogiColors.surfaceWhite,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AdiyogiColors.borderLight),
-            ),
-            child: TextField(
-              onChanged: (val) => setState(() => _searchQuery = val),
-              decoration: const InputDecoration(
-                hintText: 'Search layout catalog...',
-                hintStyle: TextStyle(fontSize: 13, color: AdiyogiColors.greyMuted),
-                prefixIcon: Icon(Icons.search, size: 16, color: AdiyogiColors.greyMuted),
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 10),
+          // Toolbar center search if Step 1
+          if (_wizardStep == 1)
+            Container(
+              width: 320,
+              height: 38,
+              decoration: BoxDecoration(
+                color: AdiyogiColors.surfaceWhite,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AdiyogiColors.borderLight),
               ),
+              child: TextField(
+                onChanged: (val) => setState(() => _searchQuery = val),
+                decoration: const InputDecoration(
+                  hintText: 'Search layout catalog...',
+                  hintStyle: TextStyle(fontSize: 13, color: Colors.grey),
+                  prefixIcon: Icon(Icons.search, size: 16, color: Colors.grey),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(vertical: 10),
+                ),
+              ),
+            )
+          else
+            // Actions for Step 2
+            Row(
+              children: [
+                TextButton.icon(
+                  onPressed: _resetConfig,
+                  icon: const Icon(Icons.restart_alt, size: 16),
+                  label: const Text('Reset', style: TextStyle(fontSize: 12)),
+                  style: TextButton.styleFrom(foregroundColor: AdiyogiColors.greyBody),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  onPressed: _randomizeConfig,
+                  icon: const Icon(Icons.shuffle, size: 16),
+                  label: const Text('Randomize', style: TextStyle(fontSize: 12)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AdiyogiColors.charcoal,
+                    foregroundColor: AdiyogiColors.pureWhite,
+                  ),
+                ),
+              ],
             ),
-          ),
 
           // Right Controls: Devices
           Row(
@@ -352,14 +435,13 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
     );
   }
 
-  Widget _buildLeftSidebar(BuildContext context, List<LayoutOption> filteredLayouts) {
+  Widget _buildLeftSidebarStep1(BuildContext context, List<LayoutOption> filteredLayouts) {
     return Container(
-      width: 320,
+      width: 340,
       color: AdiyogiColors.pureWhite,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
@@ -367,7 +449,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
               style: AdiyogiTextStyles.sectionHeading(context).copyWith(fontSize: 16),
             ),
           ),
-          const Divider(height: 1, color: AdiyogiColors.borderLight),
+          Divider(height: 1, color: AdiyogiColors.borderLight),
 
           // Horizontal category picker
           SizedBox(
@@ -401,7 +483,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
               }).toList(),
             ),
           ),
-          const Divider(height: 1, color: AdiyogiColors.borderLight),
+          Divider(height: 1, color: AdiyogiColors.borderLight),
 
           // Layout List
           Expanded(
@@ -432,8 +514,276 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
               },
             ),
           ),
+          Divider(height: 1, color: AdiyogiColors.borderLight),
+
+          // CONTINUE BUTTON
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _wizardStep = 2;
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AdiyogiColors.charcoal,
+                foregroundColor: AdiyogiColors.pureWhite,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text('Continue to Style Config', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLeftSidebarStep2(BuildContext context) {
+    return Container(
+      width: 340,
+      color: AdiyogiColors.pureWhite,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Back button
+          Padding(
+            padding: const EdgeInsets.only(left: 16, top: 16, right: 16),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => setState(() => _wizardStep = 1),
+                  child: Row(
+                    children: [
+                      Icon(Icons.arrow_back, size: 16, color: AdiyogiColors.greyBody),
+                      const SizedBox(width: 8),
+                      Text('Back to Layouts', style: TextStyle(fontSize: 13, color: AdiyogiColors.greyBody)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Form Design Controls',
+              style: AdiyogiTextStyles.sectionHeading(context).copyWith(fontSize: 16),
+            ),
+          ),
+          Divider(height: 1, color: AdiyogiColors.borderLight),
+
+          // Scrollable Settings List
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _buildCategorySection('Theme', [
+                  _buildThemePresetSelector(),
+                  const SizedBox(height: 12),
+                  _buildColorPickerRow(),
+                ]),
+                _buildCategorySection('Typography', [
+                  _buildDropdownControl<FontStylePreset>(
+                    'Font Family',
+                    _themeConfig.fontFamily,
+                    FontStylePreset.values,
+                    (val) {
+                      if (val != null) {
+                        setState(() {
+                          _themeConfig = _themeConfig.copyWith(fontFamily: val);
+                          _syncThemeState();
+                        });
+                      }
+                    },
+                  ),
+                ]),
+                _buildCategorySection('Density & Spacing', [
+                  _buildSliderControl('Form Spacing', _spacingConfig.formPadding, 8.0, 48.0, (val) {
+                    setState(() => _spacingConfig = _spacingConfig.copyWith(formPadding: val));
+                  }),
+                  _buildSliderControl('Question Spacing', _spacingConfig.questionSpacing, 4.0, 32.0, (val) {
+                    setState(() => _spacingConfig = _spacingConfig.copyWith(questionSpacing: val));
+                  }),
+                ]),
+                _buildCategorySection('Shapes', [
+                  _buildDropdownControl<ShapeStylePreset>(
+                    'Border Radius',
+                    _shapeConfig.borderRadius,
+                    ShapeStylePreset.values,
+                    (val) {
+                      if (val != null) {
+                        setState(() {
+                          _shapeConfig = _shapeConfig.copyWith(borderRadius: val);
+                          _syncThemeState();
+                        });
+                      }
+                    },
+                  ),
+                ]),
+                _buildCategorySection('Animation', [
+                  _buildDropdownControl<PageTransitionPreset>(
+                    'Page Transition Style',
+                    _animConfig.transition,
+                    PageTransitionPreset.values,
+                    (val) => setState(() => _animConfig = _animConfig.copyWith(transition: val)),
+                  ),
+                ]),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategorySection(String title, List<Widget> children) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: AdiyogiColors.borderLight),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ExpansionTile(
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+        childrenPadding: const EdgeInsets.all(12),
+        children: children,
+      ),
+    );
+  }
+
+  Widget _buildDropdownControl<T>(String label, T current, List<T> values, ValueChanged<T?> onChanged) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            border: Border.all(color: AdiyogiColors.borderLight),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<T>(
+              value: current,
+              isExpanded: true,
+              style: const TextStyle(fontSize: 12, color: Colors.black),
+              onChanged: onChanged,
+              items: values.map((val) {
+                return DropdownMenuItem<T>(
+                  value: val,
+                  child: Text(val.toString().split('.').last),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSliderControl(String label, double value, double min, double max, ValueChanged<double> onChanged) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+            Text('${value.toInt()}px', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        Slider(
+          value: value,
+          min: min,
+          max: max,
+          activeColor: AdiyogiColors.charcoal,
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildThemePresetSelector() {
+    final presets = ['minimal', 'dark', 'material', 'survey'];
+    return _buildDropdownControl<String>(
+      'Theme Preset',
+      _themeConfig.themePreset,
+      presets,
+      (val) {
+        if (val == 'dark') {
+          setState(() {
+            _themeConfig = _themeConfig.copyWith(
+              themePreset: val,
+              primary: Colors.white,
+              background: const Color(0xFF121218),
+              textColor: Colors.white,
+              cardColor: const Color(0xFF1B1B21),
+            );
+            _syncThemeState();
+          });
+        } else {
+          setState(() {
+            _themeConfig = _themeConfig.copyWith(
+              themePreset: val,
+              primary: const Color(0xFF1B1B21),
+              background: const Color(0xFFF7F7F8),
+              textColor: const Color(0xFF121218),
+              cardColor: Colors.white,
+            );
+            _syncThemeState();
+          });
+        }
+      },
+    );
+  }
+
+  Widget _buildColorPickerRow() {
+    return Row(
+      children: [
+        _buildColorIndicator('Primary', _themeConfig.primary, (color) {
+          setState(() {
+            _themeConfig = _themeConfig.copyWith(primary: color);
+            _syncThemeState();
+          });
+        }),
+        const SizedBox(width: 8),
+        _buildColorIndicator('Background', _themeConfig.background, (color) {
+          setState(() {
+            _themeConfig = _themeConfig.copyWith(background: color);
+            _syncThemeState();
+          });
+        }),
+      ],
+    );
+  }
+
+  Widget _buildColorIndicator(String label, Color color, ValueChanged<Color> onChanged) {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () {
+            // Cycle colors for demo/simulation
+            final colors = [const Color(0xFF1B1B21), const Color(0xFF3F51B5), const Color(0xFF4CAF50), const Color(0xFFE91E63), const Color(0xFFF7F7F8)];
+            final currentIdx = colors.indexOf(color);
+            final nextIdx = (currentIdx + 1) % colors.length;
+            onChanged(colors[nextIdx]);
+          },
+          child: Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              border: Border.all(color: AdiyogiColors.borderLight),
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+      ],
     );
   }
 
@@ -459,9 +809,9 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Live Preview',
-                style: AdiyogiTextStyles.sectionHeading(context).copyWith(fontSize: 16),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               Text(
                 'Layout: ${_layouts.firstWhere((element) => element.id == _selectedLayoutId).name}',
@@ -470,7 +820,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
             ],
           ),
         ),
-        const Divider(height: 1, color: AdiyogiColors.borderLight),
+        Divider(height: 1, color: AdiyogiColors.borderLight),
 
         // Preview Canvas Box
         Expanded(
@@ -484,7 +834,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
                 height: height,
                 margin: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AdiyogiColors.surfaceWhite,
+                  color: FormThemeState.background,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: const [
                     BoxShadow(
@@ -497,7 +847,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: Scaffold(
-                    backgroundColor: AdiyogiColors.surfaceWhite,
+                    backgroundColor: FormThemeState.background,
                     body: SingleChildScrollView(
                       padding: const EdgeInsets.all(24),
                       child: Column(
