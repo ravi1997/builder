@@ -349,6 +349,9 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
     }
 
     FormThemeState.borderRadius = _themeConfig.borderRadius;
+    FormThemeState.titleSize = _themeConfig.titleSize;
+    FormThemeState.sectionSize = _themeConfig.sectionSize;
+    FormThemeState.questionSize = _themeConfig.questionSize;
   }
 
   void _resetConfig() {

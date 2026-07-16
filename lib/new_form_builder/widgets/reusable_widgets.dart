@@ -10,6 +10,10 @@ class FormThemeState {
   static Color borderLight = const Color(0xFFC9CDD2);
   static String fontFamily = 'Instrument Sans';
   static double borderRadius = 16.0;
+
+  static double titleSize = 24.0;
+  static double sectionSize = 18.0;
+  static double questionSize = 14.0;
 }
 
 // --- Colors ---
@@ -38,7 +42,7 @@ class AdiyogiColors {
 class AdiyogiTextStyles {
   static TextStyle displayHeading(BuildContext context) => TextStyle(
         fontFamily: FormThemeState.fontFamily,
-        fontSize: 36, // Scaled for app usage
+        fontSize: FormThemeState.titleSize,
         fontWeight: FontWeight.w600,
         height: 1.2,
         color: AdiyogiColors.inkBlack,
@@ -46,7 +50,7 @@ class AdiyogiTextStyles {
 
   static TextStyle sectionHeading(BuildContext context) => TextStyle(
         fontFamily: FormThemeState.fontFamily,
-        fontSize: 24,
+        fontSize: FormThemeState.sectionSize,
         fontWeight: FontWeight.w600,
         height: 1.3,
         color: AdiyogiColors.inkBlack,
@@ -54,7 +58,7 @@ class AdiyogiTextStyles {
 
   static TextStyle cardHeading(BuildContext context) => TextStyle(
         fontFamily: FormThemeState.fontFamily,
-        fontSize: 20,
+        fontSize: FormThemeState.sectionSize + 2,
         fontWeight: FontWeight.w600,
         height: 1.4,
         color: AdiyogiColors.inkBlack,
@@ -62,7 +66,7 @@ class AdiyogiTextStyles {
 
   static TextStyle bodyLarge(BuildContext context) => TextStyle(
         fontFamily: FormThemeState.fontFamily,
-        fontSize: 16,
+        fontSize: FormThemeState.questionSize + 2,
         fontWeight: FontWeight.w400,
         height: 1.5,
         color: AdiyogiColors.greyBody,
@@ -70,7 +74,7 @@ class AdiyogiTextStyles {
 
   static TextStyle bodyMedium(BuildContext context) => TextStyle(
         fontFamily: FormThemeState.fontFamily,
-        fontSize: 14,
+        fontSize: FormThemeState.questionSize,
         fontWeight: FontWeight.w400,
         height: 1.4,
         color: AdiyogiColors.greyBody,
@@ -78,7 +82,7 @@ class AdiyogiTextStyles {
 
   static TextStyle labelLarge(BuildContext context) => TextStyle(
         fontFamily: FormThemeState.fontFamily,
-        fontSize: 16,
+        fontSize: FormThemeState.questionSize,
         fontWeight: FontWeight.w500,
         height: 1.4,
         color: AdiyogiColors.inkBlack,
@@ -86,7 +90,7 @@ class AdiyogiTextStyles {
 
   static TextStyle labelMedium(BuildContext context) => TextStyle(
         fontFamily: FormThemeState.fontFamily,
-        fontSize: 14,
+        fontSize: FormThemeState.questionSize,
         fontWeight: FontWeight.w500,
         height: 1.4,
         color: AdiyogiColors.inkBlack,
