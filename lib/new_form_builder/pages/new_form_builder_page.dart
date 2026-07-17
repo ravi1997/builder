@@ -546,59 +546,56 @@ class _NewFormBuilderPageState extends ConsumerState<NewFormBuilderPage> {
 
         // Preview Canvas Box
         Expanded(
-          child: Stack(
-            children: [
-              Positioned.fill(child: Container(decoration: buildBackgroundDecoration(state.themeConfig))),
-              Positioned.fill(child: Container(decoration: buildBackgroundPattern(state.themeConfig))),
-              Center(
-                child: AnimatedContainer(
+          child: Container(
+            color: AdiyogiColors.shellBackground,
+            child: Center(
+              child: AnimatedContainer(
                   duration: const Duration(milliseconds: 350),
                   curve: Curves.easeInOut,
-                  width: state.previewMode == 'Desktop'
-                      ? formMaxWidthForPreset(state.themeConfig.formWidthPreset, maxWidth ?? 1200)
-                      : maxWidth,
+                width: state.previewMode == 'Desktop'
+                    ? formMaxWidthForPreset(state.themeConfig.formWidthPreset, maxWidth ?? 1200)
+                    : maxWidth,
                   height: height,
                   margin: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: state.themeConfig.background,
+                    color: AdiyogiColors.shellWhite,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: const [
                       BoxShadow(
-                        color: Color(0x0C000000),
-                        blurRadius: 24,
-                        offset: Offset(0, 8),
-                      )
-                    ],
-                  ),
+                      color: Color(0x0C000000),
+                      blurRadius: 24,
+                      offset: Offset(0, 8),
+                    )
+                  ],
+                ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Scaffold(
-                      backgroundColor: state.themeConfig.background,
+                      backgroundColor: AdiyogiColors.shellBackground,
                       body: SingleChildScrollView(
                         padding: EdgeInsets.all(state.themeConfig.formPadding),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            AnimatedSwitcher(
-                              duration: state.animConfig.duration,
-                              switchInCurve: state.animConfig.curveWidget,
-                              switchOutCurve: state.animConfig.curveWidget.flipped,
-                              transitionBuilder: (child, animation) =>
-                                  _buildTransition(child, animation, state.animConfig.transition),
-                              child: KeyedSubtree(
-                                key: ValueKey('${state.selectedLayoutId}_${state.previewMode}_${state.skeletonMode}'),
-                                child: _renderActiveLayout(state, notifier),
-                              ),
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          AnimatedSwitcher(
+                            duration: state.animConfig.duration,
+                            switchInCurve: state.animConfig.curveWidget,
+                            switchOutCurve: state.animConfig.curveWidget.flipped,
+                            transitionBuilder: (child, animation) =>
+                                _buildTransition(child, animation, state.animConfig.transition),
+                            child: KeyedSubtree(
+                              key: ValueKey('${state.selectedLayoutId}_${state.previewMode}_${state.skeletonMode}'),
+                              child: _renderActiveLayout(state, notifier),
                             ),
-                            const SizedBox(height: 48),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 48),
+                        ],
                       ),
                     ),
                   ),
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ],
