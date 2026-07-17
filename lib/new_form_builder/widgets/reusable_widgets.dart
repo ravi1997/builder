@@ -375,29 +375,57 @@ class TextInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final suffix = suffixIcon;
-    return Container(
-      height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: AdiyogiColors.surfaceWhite,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: AdiyogiColors.borderLight),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            width: 120,
-            height: 12,
-            decoration: BoxDecoration(
-              color: AdiyogiColors.surfaceSubtle,
-              borderRadius: BorderRadius.circular(6),
+    if (FormThemeState.skeletonMode) {
+      return Container(
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: AdiyogiColors.surfaceWhite,
+          borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
+          border: Border.all(color: AdiyogiColors.borderLight),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              width: 120,
+              height: 12,
+              decoration: BoxDecoration(
+                color: AdiyogiColors.surfaceSubtle,
+                borderRadius: BorderRadius.circular(6),
+              ),
             ),
-          ),
-          // ignore: use_null_aware_elements
-          if (suffix != null) suffix,
-        ],
+            // ignore: use_null_aware_elements
+            if (suffix != null) suffix,
+          ],
+        ),
+      );
+    }
+
+    return TextField(
+      onChanged: onChanged,
+      controller: TextEditingController(text: value)..selection = TextSelection.fromPosition(TextPosition(offset: value.length)),
+      decoration: InputDecoration(
+        hintText: placeholder ?? 'Enter text...',
+        hintStyle: AdiyogiTextStyles.bodyMedium(context).copyWith(color: AdiyogiColors.greyMuted),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        filled: true,
+        fillColor: AdiyogiColors.surfaceWhite,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
+          borderSide: BorderSide(color: AdiyogiColors.borderLight),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
+          borderSide: BorderSide(color: AdiyogiColors.borderLight),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
+          borderSide: BorderSide(color: AdiyogiColors.charcoal, width: 1.5),
+        ),
+        suffixIcon: suffix,
       ),
+      style: AdiyogiTextStyles.bodyMedium(context).copyWith(color: AdiyogiColors.inkBlack),
     );
   }
 }
@@ -416,27 +444,52 @@ class DropdownField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (FormThemeState.skeletonMode) {
+      return Container(
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: AdiyogiColors.surfaceWhite,
+          borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
+          border: Border.all(color: AdiyogiColors.borderLight),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              width: 80,
+              height: 12,
+              decoration: BoxDecoration(
+                color: AdiyogiColors.surfaceSubtle,
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+            Icon(Icons.keyboard_arrow_down, size: 16, color: AdiyogiColors.greyMuted),
+          ],
+        ),
+      );
+    }
+
     return Container(
-      height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: AdiyogiColors.surfaceWhite,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
         border: Border.all(color: AdiyogiColors.borderLight),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            width: 80,
-            height: 12,
-            decoration: BoxDecoration(
-              color: AdiyogiColors.surfaceSubtle,
-              borderRadius: BorderRadius.circular(6),
-            ),
-          ),
-          Icon(Icons.keyboard_arrow_down, size: 16, color: AdiyogiColors.greyMuted),
-        ],
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value != null && options.contains(value) ? value : null,
+          isExpanded: true,
+          style: AdiyogiTextStyles.bodyMedium(context).copyWith(color: AdiyogiColors.inkBlack),
+          onChanged: onChanged,
+          items: options.map((opt) {
+            return DropdownMenuItem<String>(
+              value: opt,
+              child: Text(opt),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -456,27 +509,46 @@ class CheckboxField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 18,
-          height: 18,
-          decoration: BoxDecoration(
-            color: AdiyogiColors.surfaceSubtle,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: AdiyogiColors.borderLight),
+    if (FormThemeState.skeletonMode) {
+      return Row(
+        children: [
+          Container(
+            width: 18,
+            height: 18,
+            decoration: BoxDecoration(
+              color: AdiyogiColors.surfaceSubtle,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: AdiyogiColors.borderLight),
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Container(
-          width: 150,
-          height: 12,
-          decoration: BoxDecoration(
-            color: AdiyogiColors.surfaceSubtle,
-            borderRadius: BorderRadius.circular(6),
+          const SizedBox(width: 8),
+          Container(
+            width: 150,
+            height: 12,
+            decoration: BoxDecoration(
+              color: AdiyogiColors.surfaceSubtle,
+              borderRadius: BorderRadius.circular(6),
+            ),
           ),
-        ),
-      ],
+        ],
+      );
+    }
+
+    return InkWell(
+      onTap: () => onChanged(!value),
+      child: Row(
+        children: [
+          Checkbox(
+            value: value,
+            activeColor: AdiyogiColors.charcoal,
+            onChanged: onChanged,
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(label, style: AdiyogiTextStyles.bodyMedium(context).copyWith(color: AdiyogiColors.inkBlack)),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -495,32 +567,58 @@ class RadioField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (FormThemeState.skeletonMode) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: options.map((opt) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Row(
+              children: [
+                Container(
+                  width: 18,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: AdiyogiColors.surfaceSubtle,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AdiyogiColors.borderLight),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 100,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: AdiyogiColors.surfaceSubtle,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: options.map((opt) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Row(
-            children: [
-              Container(
-                width: 18,
-                height: 18,
-                decoration: BoxDecoration(
-                  color: AdiyogiColors.surfaceSubtle,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AdiyogiColors.borderLight),
+        return InkWell(
+          onTap: () => onChanged(opt),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: Row(
+              children: [
+                Radio<String>(
+                  value: opt,
+                  groupValue: value,
+                  activeColor: AdiyogiColors.charcoal,
+                  onChanged: onChanged,
                 ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                width: 100,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: AdiyogiColors.surfaceSubtle,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
-            ],
+                const SizedBox(width: 4),
+                Text(opt, style: AdiyogiTextStyles.bodyMedium(context).copyWith(color: AdiyogiColors.inkBlack)),
+              ],
+            ),
           ),
         );
       }).toList(),
