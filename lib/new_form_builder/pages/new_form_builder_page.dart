@@ -555,7 +555,7 @@ class _NewFormBuilderPageState extends ConsumerState<NewFormBuilderPage> {
                 height: height,
                 margin: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: FormThemeState.background,
+                  color: state.themeConfig.background,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: const [
                     BoxShadow(
@@ -568,7 +568,7 @@ class _NewFormBuilderPageState extends ConsumerState<NewFormBuilderPage> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: Scaffold(
-                    backgroundColor: FormThemeState.background,
+                    backgroundColor: state.themeConfig.background,
                     body: SingleChildScrollView(
                       padding: const EdgeInsets.all(24),
                       child: Column(

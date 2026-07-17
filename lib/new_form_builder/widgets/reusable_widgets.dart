@@ -1,29 +1,12 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import '../models/form_schema.dart';
-
-
+import '../providers/form_builder_provider.dart';
 import '../models/form_theme_config.dart';
-import '../models/component_style_config.dart';
 
-class FormThemeState {
-  static FormThemeConfig currentThemeConfig = const FormThemeConfig();
-  static ComponentStyleConfig currentComponentConfig = const ComponentStyleConfig();
-  static bool currentSkeletonMode = true;
-
-  static Color get primary => currentThemeConfig.primary;
-  static Color get background => currentThemeConfig.background;
-  static Color get cardColor => currentThemeConfig.cardColor;
-  static Color get textColor => currentThemeConfig.textColor;
-  static Color get borderLight => currentThemeConfig.inputColor;
-  static String get fontFamily => currentThemeConfig.fontFamily.toString().split('.').last;
-  static double get borderRadius => currentThemeConfig.borderRadius;
-
-  static double get titleSize => currentThemeConfig.titleSize;
-  static double get sectionSize => currentThemeConfig.sectionSize;
-  static double get questionSize => currentThemeConfig.questionSize;
-
-  static bool get skeletonMode => currentSkeletonMode;
+extension FormThemeContextX on BuildContext {
+  FormThemeConfig get themeConfig => FormThemeScope.of(this)?.themeConfig ?? const FormThemeConfig();
+  bool get skeletonMode => FormThemeScope.of(this)?.skeletonMode ?? true;
 }
 
 // --- Colors ---
@@ -37,81 +20,81 @@ class AdiyogiColors {
   static const Color shellBorder = Color(0xFFE5E7EB);
 
   // Dynamic preview colors (binds to current theme state)
-  static Color get pureWhite => FormThemeState.cardColor;
+  static Color pureWhite(BuildContext context) => context.themeConfig.cardColor;
   static const Color surfaceSubtle = Color(0xFFEDEEF1);
-  static Color get surfaceWhite => FormThemeState.background;
-  static Color get charcoal => FormThemeState.primary;
-  static Color get greyBody => FormThemeState.textColor.withValues(alpha: 0.7);
-  static Color get greyMuted => FormThemeState.textColor.withValues(alpha: 0.5);
-  static Color get inkBlack => FormThemeState.textColor;
-  static Color get slateMid => FormThemeState.textColor.withValues(alpha: 0.85);
-  static Color get borderLight => FormThemeState.borderLight;
+  static Color surfaceWhite(BuildContext context) => context.themeConfig.background;
+  static Color charcoal(BuildContext context) => context.themeConfig.primary;
+  static Color greyBody(BuildContext context) => context.themeConfig.textColor.withValues(alpha: 0.7);
+  static Color greyMuted(BuildContext context) => context.themeConfig.textColor.withValues(alpha: 0.5);
+  static Color inkBlack(BuildContext context) => context.themeConfig.textColor;
+  static Color slateMid(BuildContext context) => context.themeConfig.textColor.withValues(alpha: 0.85);
+  static Color borderLight(BuildContext context) => context.themeConfig.inputColor;
 }
 
 // --- Typography Helpers ---
 class AdiyogiTextStyles {
   static TextStyle displayHeading(BuildContext context) => TextStyle(
-        fontFamily: FormThemeState.fontFamily,
-        fontSize: FormThemeState.titleSize,
+        fontFamily: context.themeConfig.fontFamily.toString().split('.').last,
+        fontSize: context.themeConfig.titleSize,
         fontWeight: FontWeight.w600,
         height: 1.2,
-        color: AdiyogiColors.inkBlack,
+        color: AdiyogiColors.inkBlack(context),
       );
 
   static TextStyle sectionHeading(BuildContext context) => TextStyle(
-        fontFamily: FormThemeState.fontFamily,
-        fontSize: FormThemeState.sectionSize,
+        fontFamily: context.themeConfig.fontFamily.toString().split('.').last,
+        fontSize: context.themeConfig.sectionSize,
         fontWeight: FontWeight.w600,
         height: 1.3,
-        color: AdiyogiColors.inkBlack,
+        color: AdiyogiColors.inkBlack(context),
       );
 
   static TextStyle cardHeading(BuildContext context) => TextStyle(
-        fontFamily: FormThemeState.fontFamily,
-        fontSize: FormThemeState.sectionSize + 2,
+        fontFamily: context.themeConfig.fontFamily.toString().split('.').last,
+        fontSize: context.themeConfig.sectionSize + 2,
         fontWeight: FontWeight.w600,
         height: 1.4,
-        color: AdiyogiColors.inkBlack,
+        color: AdiyogiColors.inkBlack(context),
       );
 
   static TextStyle bodyLarge(BuildContext context) => TextStyle(
-        fontFamily: FormThemeState.fontFamily,
-        fontSize: FormThemeState.questionSize + 2,
+        fontFamily: context.themeConfig.fontFamily.toString().split('.').last,
+        fontSize: context.themeConfig.questionSize + 2,
         fontWeight: FontWeight.w400,
         height: 1.5,
-        color: AdiyogiColors.greyBody,
+        color: AdiyogiColors.greyBody(context),
       );
 
   static TextStyle bodyMedium(BuildContext context) => TextStyle(
-        fontFamily: FormThemeState.fontFamily,
-        fontSize: FormThemeState.questionSize,
+        fontFamily: context.themeConfig.fontFamily.toString().split('.').last,
+        fontSize: context.themeConfig.questionSize,
         fontWeight: FontWeight.w400,
         height: 1.4,
-        color: AdiyogiColors.greyBody,
+        color: AdiyogiColors.greyBody(context),
       );
 
   static TextStyle labelLarge(BuildContext context) => TextStyle(
-        fontFamily: FormThemeState.fontFamily,
-        fontSize: FormThemeState.questionSize,
+        fontFamily: context.themeConfig.fontFamily.toString().split('.').last,
+        fontSize: context.themeConfig.questionSize,
         fontWeight: FontWeight.w500,
         height: 1.4,
-        color: AdiyogiColors.inkBlack,
+        color: AdiyogiColors.inkBlack(context),
       );
 
   static TextStyle labelMedium(BuildContext context) => TextStyle(
-        fontFamily: FormThemeState.fontFamily,
-        fontSize: FormThemeState.questionSize,
+        fontFamily: context.themeConfig.fontFamily.toString().split('.').last,
+        fontSize: context.themeConfig.questionSize,
         fontWeight: FontWeight.w500,
         height: 1.4,
-        color: AdiyogiColors.inkBlack,
+        color: AdiyogiColors.inkBlack(context),
       );
 
   static TextStyle uiMicro(BuildContext context) => TextStyle(
-        fontFamily: FormThemeState.fontFamily,
+        fontFamily: context.themeConfig.fontFamily.toString().split('.').last,
         fontSize: 12,
         fontWeight: FontWeight.w500,
         height: 1.2,
-        color: AdiyogiColors.greyMuted,
+        color: AdiyogiColors.greyMuted(context),
       );
 }
 
@@ -134,9 +117,9 @@ class SectionCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
-        color: AdiyogiColors.pureWhite,
-        borderRadius: BorderRadius.circular(FormThemeState.borderRadius),
-        border: Border.all(color: AdiyogiColors.borderLight, width: 1),
+        color: AdiyogiColors.pureWhite(context),
+        borderRadius: BorderRadius.circular(context.themeConfig.borderRadius),
+        border: Border.all(color: AdiyogiColors.borderLight(context), width: 1),
         boxShadow: const [
           BoxShadow(
             color: Color(0x0A121218),
@@ -158,21 +141,21 @@ class SectionCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (FormThemeState.skeletonMode) ...[
+                if (context.skeletonMode) ...[
                   Container(
                     width: 160,
-                    height: FormThemeState.sectionSize - 2,
+                    height: context.themeConfig.sectionSize - 2,
                     decoration: BoxDecoration(
-                      color: AdiyogiColors.greyBody.withValues(alpha: 0.2),
+                      color: AdiyogiColors.greyBody(context).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Container(
                     width: 240,
-                    height: FormThemeState.questionSize - 4,
+                    height: context.themeConfig.questionSize - 4,
                     decoration: BoxDecoration(
-                      color: AdiyogiColors.greyMuted.withValues(alpha: 0.15),
+                      color: AdiyogiColors.greyMuted(context).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(3),
                     ),
                   ),
@@ -252,12 +235,12 @@ class FormQuestionWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (FormThemeState.skeletonMode)
+        if (context.skeletonMode)
           Container(
             width: 100,
-            height: FormThemeState.questionSize - 2,
+            height: context.themeConfig.questionSize - 2,
             decoration: BoxDecoration(
-              color: AdiyogiColors.inkBlack.withValues(alpha: 0.15),
+              color: AdiyogiColors.inkBlack(context).withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(3),
             ),
           )
@@ -313,9 +296,9 @@ class FormQuestionWidget extends StatelessWidget {
         return Container(
           height: 60,
           decoration: BoxDecoration(
-            color: AdiyogiColors.surfaceWhite,
-            borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
-            border: Border.all(color: AdiyogiColors.borderLight),
+            color: AdiyogiColors.surfaceWhite(context),
+            borderRadius: BorderRadius.circular(context.themeConfig.borderRadius / 2),
+            border: Border.all(color: AdiyogiColors.borderLight(context)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -331,9 +314,9 @@ class FormQuestionWidget extends StatelessWidget {
           height: 80,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AdiyogiColors.surfaceWhite,
-            borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
-            border: Border.all(color: AdiyogiColors.borderLight),
+            color: AdiyogiColors.surfaceWhite(context),
+            borderRadius: BorderRadius.circular(context.themeConfig.borderRadius / 2),
+            border: Border.all(color: AdiyogiColors.borderLight(context)),
           ),
           child: const Padding(
             padding: EdgeInsets.all(12),
@@ -358,7 +341,7 @@ class FormQuestionWidget extends StatelessWidget {
               placeholder: question.placeholder ?? 'YYYY-MM-DD',
               value: value as String? ?? '',
               onChanged: onChanged,
-              suffixIcon: Icon(Icons.calendar_month, color: AdiyogiColors.greyMuted),
+              suffixIcon: Icon(Icons.calendar_month, color: AdiyogiColors.greyMuted(context)),
             ),
           ),
         );
@@ -383,14 +366,14 @@ class TextInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final suffix = suffixIcon;
-    if (FormThemeState.skeletonMode) {
+    if (context.skeletonMode) {
       return Container(
         height: 40,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: AdiyogiColors.surfaceWhite,
-          borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
-          border: Border.all(color: AdiyogiColors.borderLight),
+          color: AdiyogiColors.surfaceWhite(context),
+          borderRadius: BorderRadius.circular(context.themeConfig.borderRadius / 2),
+          border: Border.all(color: AdiyogiColors.borderLight(context)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -398,10 +381,10 @@ class TextInputField extends StatelessWidget {
             Container(
               width: 120,
               height: 12,
-              decoration: BoxDecoration(
-                color: AdiyogiColors.surfaceSubtle,
-                borderRadius: BorderRadius.circular(6),
-              ),
+        decoration: BoxDecoration(
+          color: AdiyogiColors.surfaceSubtle,
+          borderRadius: BorderRadius.circular(6),
+        ),
             ),
             // ignore: use_null_aware_elements
             if (suffix != null) suffix,
@@ -415,25 +398,25 @@ class TextInputField extends StatelessWidget {
       controller: TextEditingController(text: value)..selection = TextSelection.fromPosition(TextPosition(offset: value.length)),
       decoration: InputDecoration(
         hintText: placeholder ?? 'Enter text...',
-        hintStyle: AdiyogiTextStyles.bodyMedium(context).copyWith(color: AdiyogiColors.greyMuted),
+        hintStyle: AdiyogiTextStyles.bodyMedium(context).copyWith(color: AdiyogiColors.greyMuted(context)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         filled: true,
-        fillColor: AdiyogiColors.surfaceWhite,
+        fillColor: AdiyogiColors.surfaceWhite(context),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
-          borderSide: BorderSide(color: AdiyogiColors.borderLight),
+          borderRadius: BorderRadius.circular(context.themeConfig.borderRadius / 2),
+          borderSide: BorderSide(color: AdiyogiColors.borderLight(context)),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
-          borderSide: BorderSide(color: AdiyogiColors.borderLight),
+          borderRadius: BorderRadius.circular(context.themeConfig.borderRadius / 2),
+          borderSide: BorderSide(color: AdiyogiColors.borderLight(context)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
-          borderSide: BorderSide(color: AdiyogiColors.charcoal, width: 1.5),
+          borderRadius: BorderRadius.circular(context.themeConfig.borderRadius / 2),
+          borderSide: BorderSide(color: AdiyogiColors.charcoal(context), width: 1.5),
         ),
         suffixIcon: suffix,
       ),
-      style: AdiyogiTextStyles.bodyMedium(context).copyWith(color: AdiyogiColors.inkBlack),
+      style: AdiyogiTextStyles.bodyMedium(context).copyWith(color: AdiyogiColors.inkBlack(context)),
     );
   }
 }
@@ -452,14 +435,14 @@ class DropdownField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (FormThemeState.skeletonMode) {
+    if (context.skeletonMode) {
       return Container(
         height: 40,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: AdiyogiColors.surfaceWhite,
-          borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
-          border: Border.all(color: AdiyogiColors.borderLight),
+          color: AdiyogiColors.surfaceWhite(context),
+          borderRadius: BorderRadius.circular(context.themeConfig.borderRadius / 2),
+          border: Border.all(color: AdiyogiColors.borderLight(context)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -472,7 +455,7 @@ class DropdownField extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
               ),
             ),
-            Icon(Icons.keyboard_arrow_down, size: 16, color: AdiyogiColors.greyMuted),
+            Icon(Icons.keyboard_arrow_down, size: 16, color: AdiyogiColors.greyMuted(context)),
           ],
         ),
       );
@@ -481,15 +464,15 @@ class DropdownField extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: AdiyogiColors.surfaceWhite,
-        borderRadius: BorderRadius.circular(FormThemeState.borderRadius / 2),
-        border: Border.all(color: AdiyogiColors.borderLight),
+        color: AdiyogiColors.surfaceWhite(context),
+        borderRadius: BorderRadius.circular(context.themeConfig.borderRadius / 2),
+        border: Border.all(color: AdiyogiColors.borderLight(context)),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value != null && options.contains(value) ? value : null,
           isExpanded: true,
-          style: AdiyogiTextStyles.bodyMedium(context).copyWith(color: AdiyogiColors.inkBlack),
+          style: AdiyogiTextStyles.bodyMedium(context).copyWith(color: AdiyogiColors.inkBlack(context)),
           onChanged: onChanged,
           items: options.map((opt) {
             return DropdownMenuItem<String>(
@@ -517,7 +500,7 @@ class CheckboxField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (FormThemeState.skeletonMode) {
+    if (context.skeletonMode) {
       return Row(
         children: [
           Container(
@@ -526,7 +509,7 @@ class CheckboxField extends StatelessWidget {
             decoration: BoxDecoration(
               color: AdiyogiColors.surfaceSubtle,
               borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: AdiyogiColors.borderLight),
+              border: Border.all(color: AdiyogiColors.borderLight(context)),
             ),
           ),
           const SizedBox(width: 8),
@@ -548,12 +531,12 @@ class CheckboxField extends StatelessWidget {
         children: [
           Checkbox(
             value: value,
-            activeColor: AdiyogiColors.charcoal,
+            activeColor: AdiyogiColors.charcoal(context),
             onChanged: onChanged,
           ),
           const SizedBox(width: 4),
           Expanded(
-            child: Text(label, style: AdiyogiTextStyles.bodyMedium(context).copyWith(color: AdiyogiColors.inkBlack)),
+            child: Text(label, style: AdiyogiTextStyles.bodyMedium(context).copyWith(color: AdiyogiColors.inkBlack(context))),
           ),
         ],
       ),
@@ -575,7 +558,7 @@ class RadioField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (FormThemeState.skeletonMode) {
+    if (context.skeletonMode) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: options.map((opt) {
@@ -589,7 +572,7 @@ class RadioField extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AdiyogiColors.surfaceSubtle,
                     shape: BoxShape.circle,
-                    border: Border.all(color: AdiyogiColors.borderLight),
+                    border: Border.all(color: AdiyogiColors.borderLight(context)),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -620,11 +603,11 @@ class RadioField extends StatelessWidget {
                 Radio<String>(
                   value: opt,
                   groupValue: value,
-                  activeColor: AdiyogiColors.charcoal,
+                  activeColor: AdiyogiColors.charcoal(context),
                   onChanged: onChanged,
                 ),
                 const SizedBox(width: 4),
-                Text(opt, style: AdiyogiTextStyles.bodyMedium(context).copyWith(color: AdiyogiColors.inkBlack)),
+                Text(opt, style: AdiyogiTextStyles.bodyMedium(context).copyWith(color: AdiyogiColors.inkBlack(context))),
               ],
             ),
           ),
@@ -687,9 +670,9 @@ class FormNavigationButton extends StatelessWidget {
       return ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AdiyogiColors.charcoal,
-          foregroundColor: AdiyogiColors.pureWhite,
-          shadowColor: AdiyogiColors.greyMuted.withOpacity(0.3),
+          backgroundColor: AdiyogiColors.charcoal(context),
+          foregroundColor: AdiyogiColors.pureWhite(context),
+          shadowColor: AdiyogiColors.greyMuted(context).withOpacity(0.3),
           elevation: 2,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
@@ -698,15 +681,15 @@ class FormNavigationButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: AdiyogiTextStyles.labelMedium(context).copyWith(color: AdiyogiColors.pureWhite),
+          style: AdiyogiTextStyles.labelMedium(context).copyWith(color: AdiyogiColors.pureWhite(context)),
         ),
       );
     } else {
       return OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: AdiyogiColors.charcoal,
-          side: BorderSide(color: AdiyogiColors.borderLight),
+          foregroundColor: AdiyogiColors.charcoal(context),
+          side: BorderSide(color: AdiyogiColors.borderLight(context)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
@@ -714,7 +697,7 @@ class FormNavigationButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: AdiyogiTextStyles.labelMedium(context).copyWith(color: AdiyogiColors.charcoal),
+          style: AdiyogiTextStyles.labelMedium(context).copyWith(color: AdiyogiColors.charcoal(context)),
         ),
       );
     }
