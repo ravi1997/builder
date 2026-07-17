@@ -842,9 +842,9 @@ class FormNavigationButton extends StatelessWidget {
     final theme = context.themeConfig;
     final component = context.componentConfig;
     final borderRadius = _radiusForButton(component.buttonStyle, theme.borderRadius);
-    final border = _borderForButton(component.buttonStyle, component.borderStyle, theme.primary, theme.inputColor);
-    final backgroundColor = _buttonBackground(component.buttonStyle, theme.primary, theme.cardColor, theme.background);
-    final foregroundColor = _buttonForeground(component.buttonStyle, theme.primary, theme.cardColor);
+    final border = _borderForButton(component.buttonStyle, component.borderStyle);
+    final backgroundColor = _buttonBackground(component.buttonStyle);
+    final foregroundColor = _buttonForeground(component.buttonStyle);
     if (primary) {
       return ElevatedButton(
         onPressed: onPressed,
@@ -861,7 +861,7 @@ class FormNavigationButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: AdiyogiTextStyles.labelMedium(context).copyWith(color: context.themeConfig.cardColor),
+          style: AdiyogiTextStyles.labelMedium(context).copyWith(color: foregroundColor),
         ),
       );
     } else {
@@ -982,12 +982,12 @@ BoxBorder _boxBorderForInput(InputStylePreset inputStyle, BorderStylePreset bord
   }
 }
 
-BorderSide _borderForButton(ButtonStylePreset style, BorderStylePreset borderStyle, Color primary, Color borderColor) {
+BorderSide _borderForButton(ButtonStylePreset style, BorderStylePreset borderStyle) {
   if (style == ButtonStylePreset.text) {
     return BorderSide.none;
   }
   final width = _borderWidth(borderStyle);
-  return BorderSide(color: style == ButtonStylePreset.outlined ? primary : borderColor, width: width == 0 ? 1 : width);
+  return BorderSide(color: AdiyogiColors.shellBorder, width: width == 0 ? 1 : width);
 }
 
 Color _cardFillColor(CardStylePreset style, Color cardColor) {
@@ -1004,31 +1004,31 @@ Color _cardFillColor(CardStylePreset style, Color cardColor) {
   }
 }
 
-Color _buttonBackground(ButtonStylePreset style, Color primary, Color cardColor, Color backgroundColor) {
+Color _buttonBackground(ButtonStylePreset style) {
   switch (style) {
     case ButtonStylePreset.outlined:
     case ButtonStylePreset.text:
       return Colors.transparent;
     case ButtonStylePreset.filled:
-      return primary;
+      return AdiyogiColors.shellWhite;
     case ButtonStylePreset.gradient:
-      return primary.withValues(alpha: 0.92);
+      return AdiyogiColors.shellWhite;
     case ButtonStylePreset.glass:
-      return backgroundColor.withValues(alpha: 0.45);
+      return AdiyogiColors.shellWhite.withValues(alpha: 0.88);
   }
 }
 
-Color _buttonForeground(ButtonStylePreset style, Color primary, Color cardColor) {
+Color _buttonForeground(ButtonStylePreset style) {
   switch (style) {
     case ButtonStylePreset.outlined:
     case ButtonStylePreset.text:
-      return primary;
+      return AdiyogiColors.shellCharcoal;
     case ButtonStylePreset.filled:
-      return cardColor;
+      return AdiyogiColors.shellCharcoal;
     case ButtonStylePreset.gradient:
-      return cardColor;
+      return AdiyogiColors.shellCharcoal;
     case ButtonStylePreset.glass:
-      return primary;
+      return AdiyogiColors.shellCharcoal;
   }
 }
 
