@@ -121,6 +121,18 @@ class StyleSelectorPanel extends StatelessWidget {
         return [
           _buildThemePresetSelector(context),
           const SizedBox(height: 12),
+          _buildDropdownControl<BackgroundPreset>(
+            'Background Preset',
+            themeConfig.backgroundPreset,
+            BackgroundPreset.values,
+            (val) {
+              if (val != null) {
+                onThemeConfigChanged(themeConfig.copyWith(backgroundPreset: val));
+                onSyncTheme();
+              }
+            },
+          ),
+          const SizedBox(height: 12),
           const Text('Colors', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AdiyogiColors.shellCharcoal)),
           const SizedBox(height: 8),
           Wrap(
@@ -180,6 +192,18 @@ class StyleSelectorPanel extends StatelessWidget {
         ];
       case 'spacing':
         return [
+          _buildDropdownControl<SpacingPreset>(
+            'Spacing Preset',
+            themeConfig.spacingPreset,
+            SpacingPreset.values,
+            (val) {
+              if (val != null) {
+                onThemeConfigChanged(_applySpacingPreset(themeConfig, val));
+                onSyncTheme();
+              }
+            },
+          ),
+          const SizedBox(height: 12),
           _buildSliderControl('Form Padding', themeConfig.formPadding, 8.0, 48.0, (val) {
             onThemeConfigChanged(themeConfig.copyWith(formPadding: val));
           }),
@@ -192,9 +216,35 @@ class StyleSelectorPanel extends StatelessWidget {
           _buildSliderControl('Input Padding', themeConfig.inputPadding, 4.0, 24.0, (val) {
             onThemeConfigChanged(themeConfig.copyWith(inputPadding: val));
           }),
+          _buildSliderControl('Button Spacing', themeConfig.buttonSpacing, 4.0, 32.0, (val) {
+            onThemeConfigChanged(themeConfig.copyWith(buttonSpacing: val));
+          }),
+          const SizedBox(height: 12),
+          _buildDropdownControl<FormWidthPreset>(
+            'Form Width',
+            themeConfig.formWidthPreset,
+            FormWidthPreset.values,
+            (val) {
+              if (val != null) {
+                onThemeConfigChanged(themeConfig.copyWith(formWidthPreset: val));
+                onSyncTheme();
+              }
+            },
+          ),
         ];
       case 'shapes':
         return [
+          _buildDropdownControl<InputStylePreset>(
+            'Input Style',
+            componentConfig.inputStyle,
+            InputStylePreset.values,
+            (val) {
+              if (val != null) {
+                onComponentConfigChanged(componentConfig.copyWith(inputStyle: val));
+              }
+            },
+          ),
+          const SizedBox(height: 12),
           _buildDropdownControl<ShapeStylePreset>(
             'Border Radius',
             themeConfig.borderRadius == 0.0
@@ -229,6 +279,17 @@ class StyleSelectorPanel extends StatelessWidget {
             },
           ),
           const SizedBox(height: 12),
+          _buildDropdownControl<ButtonStylePreset>(
+            'Button Style',
+            componentConfig.buttonStyle,
+            ButtonStylePreset.values,
+            (val) {
+              if (val != null) {
+                onComponentConfigChanged(componentConfig.copyWith(buttonStyle: val));
+              }
+            },
+          ),
+          const SizedBox(height: 12),
           _buildDropdownControl<BorderStylePreset>(
             'Border Thickness',
             componentConfig.borderStyle,
@@ -236,6 +297,17 @@ class StyleSelectorPanel extends StatelessWidget {
             (val) {
               if (val != null) {
                 onComponentConfigChanged(componentConfig.copyWith(borderStyle: val));
+              }
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildDropdownControl<ShadowPreset>(
+            'Shadow Level',
+            componentConfig.shadowLevel,
+            ShadowPreset.values,
+            (val) {
+              if (val != null) {
+                onComponentConfigChanged(componentConfig.copyWith(shadowLevel: val));
               }
             },
           ),
@@ -253,6 +325,32 @@ class StyleSelectorPanel extends StatelessWidget {
             },
           ),
           const SizedBox(height: 12),
+          _buildDropdownControl<SectionAnimationPreset>(
+            'Section Animation',
+            animConfig.sectionAnim,
+            SectionAnimationPreset.values,
+            (val) {
+              if (val != null) {
+                onAnimConfigChanged(animConfig.copyWith(sectionAnim: val));
+              }
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildDropdownControl<InputAnimationPreset>(
+            'Input Animation',
+            animConfig.inputAnim,
+            InputAnimationPreset.values,
+            (val) {
+              if (val != null) {
+                onAnimConfigChanged(animConfig.copyWith(inputAnim: val));
+              }
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildSliderControl('Animation Duration', animConfig.duration.inMilliseconds.toDouble(), 100.0, 700.0, (val) {
+            onAnimConfigChanged(animConfig.copyWith(duration: Duration(milliseconds: val.toInt())));
+          }),
+          const SizedBox(height: 12),
           _buildDropdownControl<AnimationCurvePreset>(
             'Animation Curve',
             animConfig.curve,
@@ -266,6 +364,38 @@ class StyleSelectorPanel extends StatelessWidget {
         ];
       default:
         return [];
+    }
+  }
+
+  FormThemeConfig _applySpacingPreset(FormThemeConfig theme, SpacingPreset preset) {
+    switch (preset) {
+      case SpacingPreset.compact:
+        return theme.copyWith(
+          spacingPreset: preset,
+          formPadding: 16.0,
+          sectionSpacing: 16.0,
+          questionSpacing: 10.0,
+          inputPadding: 8.0,
+          buttonSpacing: 8.0,
+        );
+      case SpacingPreset.comfortable:
+        return theme.copyWith(
+          spacingPreset: preset,
+          formPadding: 24.0,
+          sectionSpacing: 24.0,
+          questionSpacing: 16.0,
+          inputPadding: 12.0,
+          buttonSpacing: 12.0,
+        );
+      case SpacingPreset.spacious:
+        return theme.copyWith(
+          spacingPreset: preset,
+          formPadding: 32.0,
+          sectionSpacing: 32.0,
+          questionSpacing: 20.0,
+          inputPadding: 16.0,
+          buttonSpacing: 16.0,
+        );
     }
   }
 

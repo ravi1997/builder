@@ -15,6 +15,23 @@ enum SpacingPreset {
   spacious,
 }
 
+enum BackgroundPreset {
+  solid,
+  subtleGradient,
+  mesh,
+  glass,
+  patternDots,
+  patternGrid,
+  imageLike,
+}
+
+enum FormWidthPreset {
+  compact,
+  medium,
+  wide,
+  full,
+}
+
 class FormThemeConfig {
   final Color primary;
   final Color secondary;
@@ -26,6 +43,8 @@ class FormThemeConfig {
   final Color errorColor;
   final Color successColor;
   final String themePreset; // minimal, dark, material, glassmorphism, enterprise, survey, rounded, neumorphism
+  final BackgroundPreset backgroundPreset;
+  final FormWidthPreset formWidthPreset;
 
   // Typography
   final FontStylePreset fontFamily;
@@ -55,6 +74,8 @@ class FormThemeConfig {
     this.errorColor = const Color(0xFFD32F2F),
     this.successColor = const Color(0xFF388E3C),
     this.themePreset = 'minimal',
+    this.backgroundPreset = BackgroundPreset.solid,
+    this.formWidthPreset = FormWidthPreset.medium,
     this.fontFamily = FontStylePreset.instrumentSans,
     this.titleSize = 24.0,
     this.sectionSize = 18.0,
@@ -81,6 +102,8 @@ class FormThemeConfig {
     Color? errorColor,
     Color? successColor,
     String? themePreset,
+    BackgroundPreset? backgroundPreset,
+    FormWidthPreset? formWidthPreset,
     FontStylePreset? fontFamily,
     double? titleSize,
     double? sectionSize,
@@ -106,6 +129,8 @@ class FormThemeConfig {
       errorColor: errorColor ?? this.errorColor,
       successColor: successColor ?? this.successColor,
       themePreset: themePreset ?? this.themePreset,
+      backgroundPreset: backgroundPreset ?? this.backgroundPreset,
+      formWidthPreset: formWidthPreset ?? this.formWidthPreset,
       fontFamily: fontFamily ?? this.fontFamily,
       titleSize: titleSize ?? this.titleSize,
       sectionSize: sectionSize ?? this.sectionSize,

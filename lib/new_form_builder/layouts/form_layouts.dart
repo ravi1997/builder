@@ -2,6 +2,57 @@ import 'package:flutter/material.dart';
 import '../models/form_schema.dart';
 import '../widgets/reusable_widgets.dart';
 
+List<FormQuestion> _allQuestions(FormSchema schema) {
+  return schema.sections.expand((sec) => sec.questions).toList();
+}
+
+double _completionFraction(FormSchema schema, Map<String, dynamic> formValues) {
+  final questions = _allQuestions(schema);
+  if (questions.isEmpty) return 0;
+
+  var filled = 0;
+  for (final question in questions) {
+    final value = formValues[question.id];
+    if (value != null && value.toString().trim().isNotEmpty) {
+      filled++;
+    }
+  }
+
+  return filled / questions.length;
+}
+
+bool _sectionIsComplete(FormSection section, Map<String, dynamic> formValues) {
+  for (final question in section.questions) {
+    if (!question.required) continue;
+    final value = formValues[question.id];
+    if (value == null || value.toString().trim().isEmpty) {
+      return false;
+    }
+  }
+  return true;
+}
+
+int _filledQuestionCount(FormSection section, Map<String, dynamic> formValues) {
+  var count = 0;
+  for (final question in section.questions) {
+    final value = formValues[question.id];
+    if (value != null && value.toString().trim().isNotEmpty) {
+      count++;
+    }
+  }
+  return count;
+}
+
+FormQuestion? _firstUnansweredQuestion(FormSchema schema, Map<String, dynamic> formValues) {
+  for (final question in _allQuestions(schema)) {
+    final value = formValues[question.id];
+    if (value == null || value.toString().trim().isEmpty) {
+      return question;
+    }
+  }
+  return null;
+}
+
 class ClassicLongForm extends StatelessWidget {
   final FormSchema schema;
   final Map<String, dynamic> formValues;
@@ -69,10 +120,10 @@ class _CollapsibleSectionsFormState extends State<CollapsibleSectionsForm> {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: Material(
-            color: AdiyogiColors.pureWhite(context),
+            color: context.themeConfig.cardColor,
             clipBehavior: Clip.antiAlias,
             shape: RoundedRectangleBorder(
-              side: BorderSide(color: AdiyogiColors.borderLight(context)),
+              side: BorderSide(color: context.themeConfig.inputColor),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -140,10 +191,10 @@ class _AccordionSingleOpenFormState extends State<AccordionSingleOpenForm> {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: Material(
-            color: AdiyogiColors.pureWhite(context),
+            color: context.themeConfig.cardColor,
             clipBehavior: Clip.antiAlias,
             shape: RoundedRectangleBorder(
-              side: BorderSide(color: AdiyogiColors.borderLight(context)),
+              side: BorderSide(color: context.themeConfig.inputColor),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -283,12 +334,13 @@ class _SectionPerPageWizardState extends State<SectionPerPageWizard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
     final sec = widget.schema.sections[_currentStep];
     return Column(
       children: [
         LinearProgressIndicator(
           value: (_currentStep + 1) / widget.schema.sections.length,
-          color: AdiyogiColors.charcoal(context),
+          color: theme.primary,
           backgroundColor: AdiyogiColors.surfaceSubtle,
         ),
         const SizedBox(height: 24),
@@ -336,6 +388,7 @@ class _QuestionPerPageWizardState extends State<QuestionPerPageWizard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
     final questions = allQuestions;
     if (questions.isEmpty) return const Text('No questions');
     final question = questions[_currentQuestionIndex];
@@ -349,16 +402,16 @@ class _QuestionPerPageWizardState extends State<QuestionPerPageWizard> {
         const SizedBox(height: 8),
         LinearProgressIndicator(
           value: (_currentQuestionIndex + 1) / questions.length,
-          color: AdiyogiColors.charcoal(context),
+          color: theme.primary,
           backgroundColor: AdiyogiColors.surfaceSubtle,
         ),
         const SizedBox(height: 32),
         Container(
           padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
-            color: AdiyogiColors.pureWhite(context),
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AdiyogiColors.borderLight(context)),
+            border: Border.all(color: theme.inputColor),
           ),
           child: FormQuestionWidget(
             question: question,
@@ -459,14 +512,15 @@ class _FullScreenMobileWizardState extends State<FullScreenMobileWizard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
     final sec = widget.schema.sections[_index];
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 375),
         decoration: BoxDecoration(
-          border: Border.all(color: AdiyogiColors.borderLight(context), width: 4),
+          border: Border.all(color: theme.inputColor, width: 4),
           borderRadius: BorderRadius.circular(32),
-          color: AdiyogiColors.surfaceWhite(context),
+          color: theme.background,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
@@ -506,8 +560,8 @@ class _FullScreenMobileWizardState extends State<FullScreenMobileWizard> {
                         ? () => setState(() => _index++)
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AdiyogiColors.charcoal(context),
-                      foregroundColor: AdiyogiColors.pureWhite(context),
+                      backgroundColor: theme.primary,
+                      foregroundColor: theme.cardColor,
                     ),
                     child: Text(_index < widget.schema.sections.length - 1 ? 'Next' : 'Done'),
                   ),
@@ -543,6 +597,7 @@ class _SwipeCardWizardState extends State<SwipeCardWizard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
     return Column(
       children: [
         Text(
@@ -601,7 +656,7 @@ class _SwipeCardWizardState extends State<SwipeCardWizard> {
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _currentPage == index ? AdiyogiColors.charcoal(context) : AdiyogiColors.borderLight(context),
+                    color: _currentPage == index ? theme.primary : theme.inputColor,
                   ),
                 ),
               ),
@@ -640,6 +695,7 @@ class _LeftSidebarNavigationFormState extends State<LeftSidebarNavigationForm> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
     final activeSection = widget.schema.sections[_selectedIndex];
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -648,7 +704,7 @@ class _LeftSidebarNavigationFormState extends State<LeftSidebarNavigationForm> {
           width: 160,
           padding: const EdgeInsets.only(right: 16),
           decoration: BoxDecoration(
-            border: Border(right: BorderSide(color: AdiyogiColors.borderLight(context))),
+            border: Border(right: BorderSide(color: theme.inputColor)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -658,7 +714,7 @@ class _LeftSidebarNavigationFormState extends State<LeftSidebarNavigationForm> {
                 onPressed: () => setState(() => _selectedIndex = idx),
                 style: TextButton.styleFrom(
                   alignment: Alignment.centerLeft,
-                  foregroundColor: active ? AdiyogiColors.charcoal(context) : AdiyogiColors.greyBody(context),
+                  foregroundColor: active ? theme.primary : theme.textColor.withValues(alpha: 0.7),
                 ),
                 child: Text(
                   widget.schema.sections[idx].title,
@@ -706,6 +762,7 @@ class _RightSidebarNavigationFormState extends State<RightSidebarNavigationForm>
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
     final activeSection = widget.schema.sections[_selectedIndex];
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -726,7 +783,7 @@ class _RightSidebarNavigationFormState extends State<RightSidebarNavigationForm>
           width: 160,
           padding: const EdgeInsets.only(left: 16),
           decoration: BoxDecoration(
-            border: Border(left: BorderSide(color: AdiyogiColors.borderLight(context))),
+            border: Border(left: BorderSide(color: theme.inputColor)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -736,7 +793,7 @@ class _RightSidebarNavigationFormState extends State<RightSidebarNavigationForm>
                 onPressed: () => setState(() => _selectedIndex = idx),
                 style: TextButton.styleFrom(
                   alignment: Alignment.centerLeft,
-                  foregroundColor: active ? AdiyogiColors.charcoal(context) : AdiyogiColors.greyBody(context),
+                  foregroundColor: active ? theme.primary : theme.textColor.withValues(alpha: 0.7),
                 ),
                 child: Text(
                   widget.schema.sections[idx].title,
@@ -772,6 +829,7 @@ class _TopStepNavigationFormState extends State<TopStepNavigationForm> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
     final activeSection = widget.schema.sections[_selectedIndex];
     return Column(
       children: [
@@ -787,7 +845,7 @@ class _TopStepNavigationFormState extends State<TopStepNavigationForm> {
                   decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
-                        color: active ? AdiyogiColors.charcoal(context) : Colors.transparent,
+                        color: active ? theme.primary : Colors.transparent,
                         width: 2,
                       ),
                     ),
@@ -796,7 +854,7 @@ class _TopStepNavigationFormState extends State<TopStepNavigationForm> {
                     widget.schema.sections[idx].title,
                     style: TextStyle(
                       fontWeight: active ? FontWeight.bold : FontWeight.normal,
-                      color: active ? AdiyogiColors.charcoal(context) : AdiyogiColors.greyMuted(context),
+                      color: active ? theme.primary : theme.textColor.withValues(alpha: 0.5),
                     ),
                   ),
                 ),
@@ -852,14 +910,15 @@ class _TabsLayoutFormState extends State<TabsLayoutForm> with TickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
     return Column(
       children: [
         TabBar(
           controller: _tabController,
           isScrollable: true,
-          labelColor: AdiyogiColors.charcoal(context),
-          unselectedLabelColor: AdiyogiColors.greyMuted(context),
-          indicatorColor: AdiyogiColors.charcoal(context),
+          labelColor: theme.primary,
+          unselectedLabelColor: theme.textColor.withValues(alpha: 0.5),
+          indicatorColor: theme.primary,
           tabs: widget.schema.sections.map((sec) => Tab(text: sec.title)).toList(),
         ),
         const SizedBox(height: 24),
@@ -908,15 +967,16 @@ class _BreadcrumbNavigationLayoutState extends State<BreadcrumbNavigationLayout>
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
     final active = widget.schema.sections[_index];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Text('Form', style: TextStyle(color: AdiyogiColors.greyMuted(context))),
-            Icon(Icons.chevron_right, size: 16, color: AdiyogiColors.greyMuted(context)),
-            Text(active.title, style: TextStyle(fontWeight: FontWeight.bold, color: AdiyogiColors.charcoal(context))),
+            Text('Form', style: TextStyle(color: theme.textColor.withValues(alpha: 0.5))),
+            Icon(Icons.chevron_right, size: 16, color: theme.textColor.withValues(alpha: 0.5)),
+            Text(active.title, style: TextStyle(fontWeight: FontWeight.bold, color: theme.primary)),
           ],
         ),
         const SizedBox(height: 24),
@@ -969,6 +1029,7 @@ class _HorizontalProgressStepperFormState extends State<HorizontalProgressSteppe
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
     final active = widget.schema.sections[_currentStep];
     return Column(
       children: [
@@ -982,13 +1043,13 @@ class _HorizontalProgressStepperFormState extends State<HorizontalProgressSteppe
                 CircleAvatar(
                   radius: 12,
                   backgroundColor: activeStep
-                      ? AdiyogiColors.charcoal(context)
-                      : (completed ? AdiyogiColors.borderLight(context) : AdiyogiColors.surfaceSubtle),
+                      ? theme.primary
+                      : (completed ? theme.inputColor : AdiyogiColors.surfaceSubtle),
                   child: Text(
                     '${idx + 1}',
                     style: TextStyle(
                       fontSize: 10,
-                      color: activeStep || completed ? AdiyogiColors.pureWhite(context) : AdiyogiColors.greyMuted(context),
+                      color: activeStep || completed ? theme.cardColor : theme.textColor.withValues(alpha: 0.5),
                     ),
                   ),
                 ),
@@ -996,7 +1057,7 @@ class _HorizontalProgressStepperFormState extends State<HorizontalProgressSteppe
                   Container(
                     width: 30,
                     height: 2,
-                    color: completed ? AdiyogiColors.charcoal(context) : AdiyogiColors.borderLight(context),
+                    color: completed ? theme.primary : theme.inputColor,
                   ),
               ],
             );
@@ -1044,6 +1105,7 @@ class _VerticalProgressStepperFormState extends State<VerticalProgressStepperFor
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1056,13 +1118,13 @@ class _VerticalProgressStepperFormState extends State<VerticalProgressStepperFor
                 CircleAvatar(
                   radius: 12,
                   backgroundColor: activeStep
-                      ? AdiyogiColors.charcoal(context)
-                      : (completed ? AdiyogiColors.borderLight(context) : AdiyogiColors.surfaceSubtle),
+                      ? theme.primary
+                      : (completed ? theme.inputColor : AdiyogiColors.surfaceSubtle),
                   child: Text(
                     '${idx + 1}',
                     style: TextStyle(
                       fontSize: 10,
-                      color: activeStep || completed ? AdiyogiColors.pureWhite(context) : AdiyogiColors.greyMuted(context),
+                      color: activeStep || completed ? theme.cardColor : theme.textColor.withValues(alpha: 0.5),
                     ),
                   ),
                 ),
@@ -1070,7 +1132,7 @@ class _VerticalProgressStepperFormState extends State<VerticalProgressStepperFor
                   Container(
                     width: 2,
                     height: 50,
-                    color: completed ? AdiyogiColors.charcoal(context) : AdiyogiColors.borderLight(context),
+                    color: completed ? theme.primary : theme.inputColor,
                   ),
               ],
             );
@@ -1116,34 +1178,27 @@ class PercentageCompletionForm extends StatelessWidget {
   });
 
   double get completionPercentage {
-    final allQuestions = schema.sections.expand((sec) => sec.questions).toList();
-    if (allQuestions.isEmpty) return 0;
-    int filled = 0;
-    for (var q in allQuestions) {
-      if (formValues[q.id] != null && formValues[q.id].toString().isNotEmpty) {
-        filled++;
-      }
-    }
-    return filled / allQuestions.length;
+    return _completionFraction(schema, formValues);
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
     final percent = (completionPercentage * 100).toInt();
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AdiyogiColors.pureWhite(context),
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AdiyogiColors.borderLight(context)),
+            border: Border.all(color: theme.inputColor),
           ),
           child: Row(
             children: [
               CircularProgressIndicator(
                 value: completionPercentage,
-                color: AdiyogiColors.charcoal(context),
+                color: theme.primary,
                 backgroundColor: AdiyogiColors.surfaceSubtle,
               ),
               const SizedBox(width: 16),
@@ -1174,28 +1229,21 @@ class ChecklistCompletionForm extends StatelessWidget {
   });
 
   bool isSectionFilled(FormSection sec) {
-    for (var q in sec.questions) {
-      if (q.required) {
-        final val = formValues[q.id];
-        if (val == null || val.toString().isEmpty) {
-          return false;
-        }
-      }
-    }
-    return true;
+    return _sectionIsComplete(sec, formValues);
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AdiyogiColors.pureWhite(context),
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AdiyogiColors.borderLight(context)),
+            border: Border.all(color: theme.inputColor),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1207,7 +1255,7 @@ class ChecklistCompletionForm extends StatelessWidget {
                 return Row(
                   children: [
                     Icon(filled ? Icons.check_circle : Icons.circle_outlined,
-                        size: 16, color: filled ? Colors.green : AdiyogiColors.greyMuted(context)),
+                        size: 16, color: filled ? Colors.green : theme.textColor.withValues(alpha: 0.5)),
                     const SizedBox(width: 8),
                     Text(sec.title, style: AdiyogiTextStyles.bodyMedium(context)),
                   ],
@@ -1237,14 +1285,15 @@ class QuestionCardForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final allQuestions = schema.sections.expand((sec) => sec.questions).toList();
+    final theme = context.themeConfig;
+    final allQuestions = _allQuestions(schema);
     return Column(
       children: allQuestions.map((q) {
         return Card(
           margin: const EdgeInsets.only(bottom: 16),
-          color: AdiyogiColors.pureWhite(context),
+          color: theme.cardColor,
           shape: RoundedRectangleBorder(
-            side: BorderSide(color: AdiyogiColors.borderLight(context)),
+            side: BorderSide(color: theme.inputColor),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
@@ -1291,7 +1340,7 @@ class SectionCardForm extends StatelessWidget {
   }
 }
 
-class KanbanStyleFormSections extends StatefulWidget {
+class KanbanStyleFormSections extends StatelessWidget {
   final FormSchema schema;
   final Map<String, dynamic> formValues;
   final Function(String, dynamic) onValueChanged;
@@ -1304,29 +1353,12 @@ class KanbanStyleFormSections extends StatefulWidget {
   });
 
   @override
-  State<KanbanStyleFormSections> createState() => _KanbanStyleFormSectionsState();
-}
-
-class _KanbanStyleFormSectionsState extends State<KanbanStyleFormSections> {
-  bool isSectionFilled(FormSection sec) {
-    for (var q in sec.questions) {
-      if (q.required) {
-        final val = widget.formValues[q.id];
-        if (val == null || val.toString().isEmpty) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-
-  @override
   Widget build(BuildContext context) {
     final incomplete = <FormSection>[];
     final complete = <FormSection>[];
 
-    for (var sec in widget.schema.sections) {
-      if (isSectionFilled(sec)) {
+    for (final sec in schema.sections) {
+      if (_sectionIsComplete(sec, formValues)) {
         complete.add(sec);
       } else {
         incomplete.add(sec);
@@ -1336,14 +1368,14 @@ class _KanbanStyleFormSectionsState extends State<KanbanStyleFormSections> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(child: _buildColumn('Incomplete (${incomplete.length})', incomplete, Colors.grey.shade100)),
+        Expanded(child: _buildColumn(context, 'Incomplete (${incomplete.length})', incomplete, Colors.grey.shade100)),
         const SizedBox(width: 12),
-        Expanded(child: _buildColumn('Complete (${complete.length})', complete, Colors.green.shade50)),
+        Expanded(child: _buildColumn(context, 'Complete (${complete.length})', complete, Colors.green.shade50)),
       ],
     );
   }
 
-  Widget _buildColumn(String title, List<FormSection> list, Color bg) {
+  Widget _buildColumn(BuildContext context, String title, List<FormSection> list, Color bg) {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -1355,13 +1387,15 @@ class _KanbanStyleFormSectionsState extends State<KanbanStyleFormSections> {
         children: [
           Text(title, style: AdiyogiTextStyles.labelMedium(context)),
           const SizedBox(height: 8),
-          ...list.map((sec) => Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  title: Text(sec.title, style: AdiyogiTextStyles.bodyMedium(context)),
-                  subtitle: Text('${sec.questions.length} fields', style: AdiyogiTextStyles.uiMicro(context)),
-                ),
-              )),
+          ...list.map(
+            (sec) => Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                title: Text(sec.title, style: AdiyogiTextStyles.bodyMedium(context)),
+                subtitle: Text('${sec.questions.length} fields', style: AdiyogiTextStyles.uiMicro(context)),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -1383,6 +1417,17 @@ class ConditionalDynamicForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final visibleSections = schema.sections.where((sec) {
+      return sec.questions.any((question) {
+        final dependencyFieldId = question.dependencyFieldId;
+        if (dependencyFieldId == null) return true;
+        return formValues[dependencyFieldId] == question.dependencyValue;
+      });
+    }).toList();
+    final visibleQuestions = _allQuestions(
+      FormSchema(title: schema.title, description: schema.description, sections: visibleSections),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1396,7 +1441,24 @@ class ConditionalDynamicForm extends StatelessWidget {
             style: AdiyogiTextStyles.uiMicro(context).copyWith(color: Colors.amber.shade900),
           ),
         ),
-        ClassicLongForm(schema: schema, formValues: formValues, onValueChanged: onValueChanged),
+        if (visibleSections.length != schema.sections.length) ...[
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              'Showing ${visibleSections.length} of ${schema.sections.length} sections and ${visibleQuestions.length} visible questions.',
+              style: AdiyogiTextStyles.uiMicro(context),
+            ),
+          ),
+        ],
+        ClassicLongForm(
+          schema: FormSchema(
+            title: schema.title,
+            description: schema.description,
+            sections: visibleSections,
+          ),
+          formValues: formValues,
+          onValueChanged: onValueChanged,
+        ),
       ],
     );
   }
@@ -1416,28 +1478,67 @@ class ReviewBeforeSubmitLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
+    final totalQuestions = _allQuestions(schema).length;
+    final completedQuestions = _allQuestions(schema).where((q) {
+      final value = formValues[q.id];
+      return value != null && value.toString().trim().isNotEmpty;
+    }).length;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          'Review ${schema.sections.length} sections and ${totalQuestions - completedQuestions} unanswered questions before submit.',
+          style: AdiyogiTextStyles.uiMicro(context),
+        ),
+        const SizedBox(height: 12),
         ...schema.sections.map((sec) {
+          final sectionComplete = _sectionIsComplete(sec, formValues);
+          final filledCount = _filledQuestionCount(sec, formValues);
           return SectionCard(
             title: sec.title,
-            description: 'Summary of answers',
+            description: sectionComplete
+                ? 'All required answers captured'
+                : '$filledCount of ${sec.questions.length} answers filled',
             child: Column(
-              children: sec.questions.map((q) {
-                final val = formValues[q.id] ?? '(Not answered)';
-                return ListTile(
-                  title: Text(q.label),
-                  subtitle: Text(val.toString()),
-                  trailing: const Icon(Icons.edit, size: 16),
-                );
-              }).toList(),
+              children: [
+                if (sectionComplete)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Chip(
+                        label: Text('Complete', style: AdiyogiTextStyles.uiMicro(context)),
+                        backgroundColor: theme.primary.withValues(alpha: 0.08),
+                        side: BorderSide(color: theme.inputColor),
+                      ),
+                    ),
+                  ),
+                ...sec.questions.map((q) {
+                  final val = formValues[q.id] ?? '(Not answered)';
+                  final answered = val.toString() != '(Not answered)';
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(q.label, style: AdiyogiTextStyles.labelLarge(context)),
+                    subtitle: Text(
+                      answered ? val.toString() : 'Not answered',
+                      style: AdiyogiTextStyles.bodyMedium(context),
+                    ),
+                    trailing: Icon(
+                      answered ? Icons.edit : Icons.radio_button_unchecked,
+                      size: 16,
+                      color: answered ? theme.primary : theme.textColor.withValues(alpha: 0.5),
+                    ),
+                  );
+                }),
+              ],
             ),
           );
         }),
         const SizedBox(height: 24),
         ElevatedButton(
           onPressed: () {},
-          style: ElevatedButton.styleFrom(backgroundColor: AdiyogiColors.charcoal(context)),
+          style: ElevatedButton.styleFrom(backgroundColor: theme.primary),
           child: const Text('Confirm & Submit'),
         ),
       ],
@@ -1530,9 +1631,19 @@ class _TreeNavigationFormState extends State<TreeNavigationForm> {
           child: Column(
             children: widget.schema.sections.map((sec) {
               final activeSec = _selectedSecId == sec.id;
+              final complete = _sectionIsComplete(sec, widget.formValues);
               return ListTile(
                 leading: Icon(activeSec ? Icons.folder_open : Icons.folder),
                 title: Text(sec.title, style: TextStyle(fontSize: 12, fontWeight: activeSec ? FontWeight.bold : FontWeight.normal)),
+                subtitle: Text(
+                  complete ? 'Complete' : '${_filledQuestionCount(sec, widget.formValues)} / ${sec.questions.length}',
+                  style: AdiyogiTextStyles.uiMicro(context),
+                ),
+                trailing: Icon(
+                  complete ? Icons.check_circle : Icons.radio_button_unchecked,
+                  size: 16,
+                  color: complete ? Colors.green : context.themeConfig.textColor.withValues(alpha: 0.5),
+                ),
                 onTap: () => setState(() => _selectedSecId = sec.id),
               );
             }).toList(),
@@ -1564,12 +1675,26 @@ class ProgressBarForm extends StatelessWidget {
     required this.onValueChanged,
   });
 
+  double get completionPercentage {
+    return _completionFraction(schema, formValues);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final percent = (completionPercentage * 100).toInt();
     return Column(
       children: [
-        const LinearProgressIndicator(value: 0.65),
+        LinearProgressIndicator(
+          value: completionPercentage,
+          color: context.themeConfig.primary,
+          backgroundColor: AdiyogiColors.surfaceSubtle,
+        ),
         const SizedBox(height: 24),
+        Text(
+          'Form Progress: $percent% Complete',
+          style: AdiyogiTextStyles.labelLarge(context),
+        ),
+        const SizedBox(height: 16),
         ClassicLongForm(schema: schema, formValues: formValues, onValueChanged: onValueChanged),
       ],
     );
@@ -1590,14 +1715,19 @@ class StepIndicatorForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final totalSteps = schema.sections.isEmpty ? 1 : schema.sections.length;
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            CircleAvatar(radius: 12, child: Text('1', style: TextStyle(fontSize: 10))),
-            SizedBox(width: 8),
-            Text('Step 1 of 3'),
+          children: [
+            CircleAvatar(
+              radius: 12,
+              backgroundColor: context.themeConfig.primary,
+              child: Text('1', style: TextStyle(fontSize: 10, color: context.themeConfig.cardColor)),
+            ),
+            const SizedBox(width: 8),
+            Text('Step 1 of $totalSteps', style: AdiyogiTextStyles.labelMedium(context)),
           ],
         ),
         const SizedBox(height: 24),
@@ -1621,10 +1751,37 @@ class ConversationalForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final questions = _allQuestions(schema);
+    final activeQuestion = questions.firstWhere(
+      (question) {
+        final value = formValues[question.id];
+        return value == null || value.toString().trim().isEmpty;
+      },
+      orElse: () => questions.isNotEmpty
+          ? questions.last
+          : const FormQuestion(id: 'empty', label: 'No questions available', type: QuestionType.text),
+    );
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Press Enter or Tap Button to proceed', style: TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(
+          'Conversation mode keeps the same field styling and changes only the interaction flow.',
+          style: AdiyogiTextStyles.uiMicro(context),
+        ),
         const SizedBox(height: 24),
+        if (questions.isNotEmpty) ...[
+          SectionCard(
+            title: 'Assistant prompt',
+            description: 'Current question',
+            child: FormQuestionWidget(
+              question: activeQuestion,
+              value: formValues[activeQuestion.id],
+              onChanged: (val) => onValueChanged(activeQuestion.id, val),
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
         ClassicLongForm(schema: schema, formValues: formValues, onValueChanged: onValueChanged),
       ],
     );
@@ -1645,16 +1802,35 @@ class ChatStyleForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
+    final questions = _allQuestions(schema);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('AI Form Assistant:', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text('AI Form Assistant', style: AdiyogiTextStyles.labelLarge(context)),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(8)),
-          child: const Text('Hello! Please complete the requested details.'),
+          decoration: BoxDecoration(
+            color: theme.cardColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: theme.inputColor),
+          ),
+          child: Text(
+            'Hello! Please complete the requested details.',
+            style: AdiyogiTextStyles.bodyMedium(context),
+          ),
         ),
+        if (questions.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Text('Recent prompt', style: AdiyogiTextStyles.uiMicro(context)),
+          const SizedBox(height: 8),
+          FormQuestionWidget(
+            question: questions.first,
+            value: formValues[questions.first.id],
+            onChanged: (val) => onValueChanged(questions.first.id, val),
+          ),
+        ],
         const SizedBox(height: 24),
         ClassicLongForm(schema: schema, formValues: formValues, onValueChanged: onValueChanged),
       ],
@@ -1676,11 +1852,48 @@ class DrawerForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.themeConfig;
+    final activeQuestion = _firstUnansweredQuestion(schema, formValues);
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Form is docked to right side drawer', style: TextStyle(color: Colors.grey)),
+        Text('Drawer layout', style: AdiyogiTextStyles.labelLarge(context)),
+        const SizedBox(height: 4),
+        Text(
+          'Slides the form into a compact right-aligned workspace while keeping the same styling.',
+          style: AdiyogiTextStyles.uiMicro(context),
+        ),
         const SizedBox(height: 24),
-        ClassicLongForm(schema: schema, formValues: formValues, onValueChanged: onValueChanged),
+        Align(
+          alignment: Alignment.centerRight,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.cardColor,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: theme.inputColor),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (activeQuestion != null) ...[
+                    Text('Current focus', style: AdiyogiTextStyles.uiMicro(context)),
+                    const SizedBox(height: 8),
+                    FormQuestionWidget(
+                      question: activeQuestion,
+                      value: formValues[activeQuestion.id],
+                      onChanged: (val) => onValueChanged(activeQuestion.id, val),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                  ClassicLongForm(schema: schema, formValues: formValues, onValueChanged: onValueChanged),
+                ],
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -1700,11 +1913,44 @@ class ModalForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: ClassicLongForm(schema: schema, formValues: formValues, onValueChanged: onValueChanged),
+    final theme = context.themeConfig;
+    final activeQuestion = _firstUnansweredQuestion(schema, formValues);
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 760),
+        child: Material(
+          color: theme.cardColor,
+          elevation: 8,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Modal layout', style: AdiyogiTextStyles.sectionHeading(context)),
+                  const SizedBox(height: 4),
+                  Text(
+                    'This keeps the editor chrome unchanged while framing the same content in a modal shell.',
+                    style: AdiyogiTextStyles.uiMicro(context),
+                  ),
+                  const SizedBox(height: 16),
+                  if (activeQuestion != null) ...[
+                    SectionCard(
+                      title: 'Focus question',
+                      description: 'Resume where the form is incomplete',
+                      child: FormQuestionWidget(
+                        question: activeQuestion,
+                        value: formValues[activeQuestion.id],
+                        onChanged: (val) => onValueChanged(activeQuestion.id, val),
+                      ),
+                    ),
+                  ],
+                  ClassicLongForm(schema: schema, formValues: formValues, onValueChanged: onValueChanged),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

@@ -340,6 +340,7 @@ class _NewFormBuilderPageState extends ConsumerState<NewFormBuilderPage> {
     return FormThemeScope(
       themeConfig: state.themeConfig,
       componentConfig: state.componentConfig,
+      animConfig: state.animConfig,
       skeletonMode: state.skeletonMode,
       child: Scaffold(
         backgroundColor: AdiyogiColors.shellBackground,
@@ -545,44 +546,59 @@ class _NewFormBuilderPageState extends ConsumerState<NewFormBuilderPage> {
 
         // Preview Canvas Box
         Expanded(
-          child: Container(
-            color: AdiyogiColors.surfaceSubtle,
-            child: Center(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 350),
-                curve: Curves.easeInOut,
-                width: maxWidth,
-                height: height,
-                margin: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: state.themeConfig.background,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x0C000000),
-                      blurRadius: 24,
-                      offset: Offset(0, 8),
-                    )
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Scaffold(
-                    backgroundColor: state.themeConfig.background,
-                    body: SingleChildScrollView(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _renderActiveLayout(state, notifier),
-                          const SizedBox(height: 48),
-                        ],
+          child: Stack(
+            children: [
+              Positioned.fill(child: Container(decoration: buildBackgroundDecoration(state.themeConfig))),
+              Positioned.fill(child: Container(decoration: buildBackgroundPattern(state.themeConfig))),
+              Center(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 350),
+                  curve: Curves.easeInOut,
+                  width: state.previewMode == 'Desktop'
+                      ? formMaxWidthForPreset(state.themeConfig.formWidthPreset, maxWidth ?? 1200)
+                      : maxWidth,
+                  height: height,
+                  margin: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: state.themeConfig.background,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x0C000000),
+                        blurRadius: 24,
+                        offset: Offset(0, 8),
+                      )
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Scaffold(
+                      backgroundColor: state.themeConfig.background,
+                      body: SingleChildScrollView(
+                        padding: EdgeInsets.all(state.themeConfig.formPadding),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            AnimatedSwitcher(
+                              duration: state.animConfig.duration,
+                              switchInCurve: state.animConfig.curveWidget,
+                              switchOutCurve: state.animConfig.curveWidget.flipped,
+                              transitionBuilder: (child, animation) =>
+                                  _buildTransition(child, animation, state.animConfig.transition),
+                              child: KeyedSubtree(
+                                key: ValueKey('${state.selectedLayoutId}_${state.previewMode}_${state.skeletonMode}'),
+                                child: _renderActiveLayout(state, notifier),
+                              ),
+                            ),
+                            const SizedBox(height: 48),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ],
@@ -592,8 +608,9 @@ class _NewFormBuilderPageState extends ConsumerState<NewFormBuilderPage> {
   Widget _renderActiveLayout(FormBuilderState state, FormBuilderNotifier notifier) {
     final values = state.formValues;
     final callback = notifier.updateFormValue;
+    final layoutId = state.selectedLayoutId;
 
-    switch (state.selectedLayoutId) {
+    switch (layoutId) {
       case 'classic':
         return ClassicLongForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'collapsible':
@@ -647,19 +664,50 @@ class _NewFormBuilderPageState extends ConsumerState<NewFormBuilderPage> {
       case 'prog_step':
         return StepIndicatorForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'adv_conversational':
+      case 'conversational':
         return ConversationalForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'adv_chat':
+      case 'chatStyle':
         return ChatStyleForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'adv_drawer':
+      case 'drawerStyle':
         return DrawerForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'adv_modal':
+      case 'modalStyle':
         return ModalForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'adv_conditional':
         return ConditionalDynamicForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'adv_review':
+      case 'reviewSubmit':
         return ReviewBeforeSubmitLayout(schema: _schema, formValues: values, onValueChanged: callback);
       default:
         return ClassicLongForm(schema: _schema, formValues: values, onValueChanged: callback);
+    }
+  }
+
+  Widget _buildTransition(Widget child, Animation<double> animation, PageTransitionPreset transition) {
+    switch (transition) {
+      case PageTransitionPreset.none:
+        return child;
+      case PageTransitionPreset.fade:
+        return FadeTransition(opacity: animation, child: child);
+      case PageTransitionPreset.slide:
+        return SlideTransition(
+          position: Tween<Offset>(begin: const Offset(0.08, 0), end: Offset.zero).animate(animation),
+          child: child,
+        );
+      case PageTransitionPreset.scale:
+        return ScaleTransition(scale: animation, child: child);
+      case PageTransitionPreset.push:
+        return SlideTransition(
+          position: Tween<Offset>(begin: const Offset(0.14, 0.02), end: Offset.zero).animate(animation),
+          child: child,
+        );
+      case PageTransitionPreset.flip:
+        return RotationTransition(
+          turns: Tween<double>(begin: 0.01, end: 0).animate(animation),
+          child: child,
+        );
     }
   }
 }

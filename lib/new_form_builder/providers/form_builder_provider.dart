@@ -192,12 +192,14 @@ final formBuilderProvider = StateNotifierProvider<FormBuilderNotifier, FormBuild
 class FormThemeScope extends InheritedWidget {
   final FormThemeConfig themeConfig;
   final ComponentStyleConfig componentConfig;
+  final AnimationConfig animConfig;
   final bool skeletonMode;
 
   const FormThemeScope({
     super.key,
     required this.themeConfig,
     required this.componentConfig,
+    required this.animConfig,
     required this.skeletonMode,
     required super.child,
   });
@@ -210,6 +212,7 @@ class FormThemeScope extends InheritedWidget {
   bool updateShouldNotify(FormThemeScope oldWidget) {
     return themeConfig != oldWidget.themeConfig ||
         componentConfig != oldWidget.componentConfig ||
+        animConfig != oldWidget.animConfig ||
         skeletonMode != oldWidget.skeletonMode;
   }
 }
