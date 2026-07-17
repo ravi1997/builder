@@ -500,3 +500,23 @@ class StyleSelectorPanel extends StatelessWidget {
     );
   }
 }
+
+class ThemePresetOption {
+  final String id;
+  final String name;
+  final IconData icon;
+  final Color primary;
+  final Color background;
+  final Color cardColor;
+  final Color textColor;
+
+  const ThemePresetOption({
+    required this.id,
+    required this.name,
+    required this.icon,
+    required this.primary,
+    required this.background,
+    required this.cardColor,
+    required this.textColor,
+  });
+}

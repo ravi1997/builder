@@ -2,20 +2,28 @@
 import 'package:flutter/material.dart';
 import '../models/form_schema.dart';
 
+
+import '../models/form_theme_config.dart';
+import '../models/component_style_config.dart';
+
 class FormThemeState {
-  static Color primary = const Color(0xFF1B1B21);
-  static Color background = const Color(0xFFF7F7F8);
-  static Color cardColor = const Color(0xFFFFFFFF);
-  static Color textColor = const Color(0xFF121218);
-  static Color borderLight = const Color(0xFFC9CDD2);
-  static String fontFamily = 'Instrument Sans';
-  static double borderRadius = 16.0;
+  static FormThemeConfig currentThemeConfig = const FormThemeConfig();
+  static ComponentStyleConfig currentComponentConfig = const ComponentStyleConfig();
+  static bool currentSkeletonMode = true;
 
-  static double titleSize = 24.0;
-  static double sectionSize = 18.0;
-  static double questionSize = 14.0;
+  static Color get primary => currentThemeConfig.primary;
+  static Color get background => currentThemeConfig.background;
+  static Color get cardColor => currentThemeConfig.cardColor;
+  static Color get textColor => currentThemeConfig.textColor;
+  static Color get borderLight => currentThemeConfig.inputColor;
+  static String get fontFamily => currentThemeConfig.fontFamily.toString().split('.').last;
+  static double get borderRadius => currentThemeConfig.borderRadius;
 
-  static bool skeletonMode = true;
+  static double get titleSize => currentThemeConfig.titleSize;
+  static double get sectionSize => currentThemeConfig.sectionSize;
+  static double get questionSize => currentThemeConfig.questionSize;
+
+  static bool get skeletonMode => currentSkeletonMode;
 }
 
 // --- Colors ---
@@ -30,13 +38,13 @@ class AdiyogiColors {
 
   // Dynamic preview colors (binds to current theme state)
   static Color get pureWhite => FormThemeState.cardColor;
-  static Color get surfaceSubtle => const Color(0xFFEDEEF1);
+  static const Color surfaceSubtle = Color(0xFFEDEEF1);
   static Color get surfaceWhite => FormThemeState.background;
   static Color get charcoal => FormThemeState.primary;
-  static Color get greyBody => FormThemeState.textColor.withOpacity(0.7);
-  static Color get greyMuted => FormThemeState.textColor.withOpacity(0.5);
+  static Color get greyBody => FormThemeState.textColor.withValues(alpha: 0.7);
+  static Color get greyMuted => FormThemeState.textColor.withValues(alpha: 0.5);
   static Color get inkBlack => FormThemeState.textColor;
-  static Color get slateMid => FormThemeState.textColor.withOpacity(0.85);
+  static Color get slateMid => FormThemeState.textColor.withValues(alpha: 0.85);
   static Color get borderLight => FormThemeState.borderLight;
 }
 

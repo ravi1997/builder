@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/form_schema.dart';
 import '../widgets/reusable_widgets.dart';
 import '../layouts/form_layouts.dart';
@@ -8,6 +9,7 @@ import '../models/animation_config.dart';
 import '../models/component_style_config.dart';
 import '../panels/layout_selector.dart';
 import '../panels/style_selector.dart';
+import '../providers/form_builder_provider.dart';
 
 class LayoutOption {
   final String id;
@@ -39,33 +41,16 @@ class DesignCategoryOption {
   });
 }
 
-
-class NewFormBuilderPage extends StatefulWidget {
+class NewFormBuilderPage extends ConsumerStatefulWidget {
   const NewFormBuilderPage({super.key});
 
   @override
-  State<NewFormBuilderPage> createState() => _NewFormBuilderPageState();
+  ConsumerState<NewFormBuilderPage> createState() => _NewFormBuilderPageState();
 }
 
-class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
-  // Wizard state: 1 = Layout Selection, 2 = Theme & Customization
-  int _wizardStep = 1;
-
+class _NewFormBuilderPageState extends ConsumerState<NewFormBuilderPage> {
   // Mock form schema
   final FormSchema _schema = FormSchema.mock;
-
-  // Form values state to simulate actual filling
-  final Map<String, dynamic> _formValues = {};
-
-  // Device preview modes
-  String _previewMode = 'Desktop'; // Desktop, Tablet, Mobile
-
-  // Selection states
-  String _selectedLayoutId = 'classic';
-  String _searchQuery = '';
-  String _selectedCategory = 'All';
-  // Active category in style step
-  String _activeDesignCategory = 'theme';
 
   final List<DesignCategoryOption> _designCategories = const [
     DesignCategoryOption(
@@ -100,11 +85,6 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
     ),
   ];
 
-  // Config models for Step 2
-  FormThemeConfig _themeConfig = const FormThemeConfig();
-  AnimationConfig _animConfig = const AnimationConfig();
-  ComponentStyleConfig _componentConfig = const ComponentStyleConfig();
-
   // List of all 24 layouts
   final List<LayoutOption> _layouts = const [
     LayoutOption(
@@ -118,329 +98,305 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
       id: 'collapsible',
       name: 'Collapsible Sections',
       description: 'Accordion style container that expands or collapses.',
-      icon: Icons.view_headline,
+      icon: Icons.unfold_more,
       category: 'Single Page',
     ),
     LayoutOption(
       id: 'accordion_single',
       name: 'Accordion Single Open',
-      description: 'Only one section is expanded at a time.',
-      icon: Icons.unfold_more,
+      description: 'Allows only one section card to be expanded at a time.',
+      icon: Icons.view_headline,
+      category: 'Single Page',
+    ),
+    LayoutOption(
+      id: 'accordion_multiple',
+      name: 'Accordion Multiple Open',
+      description: 'Multiple section cards can be expanded at the same time.',
+      icon: Icons.view_stream,
+      category: 'Single Page',
+    ),
+    LayoutOption(
+      id: 'card_section',
+      name: 'Section Cards',
+      description: 'Wraps sections in clear elevated cards with borders.',
+      icon: Icons.crop_portrait,
       category: 'Single Page',
     ),
     LayoutOption(
       id: 'two_col',
       name: 'Two Column Form',
-      description: 'Fields arranged in responsive 2-column structure.',
-      icon: Icons.grid_view_sharp,
+      description: 'Renders questions side-by-side in double columns.',
+      icon: Icons.view_column,
       category: 'Single Page',
     ),
     LayoutOption(
       id: 'three_col',
-      name: 'Three Column Grid Form',
-      description: 'Dense enterprise style grid layout for power users.',
+      name: 'Three Column Grid',
+      description: 'Maximizes desktop density with a triple column grid.',
       icon: Icons.grid_on,
       category: 'Single Page',
     ),
     LayoutOption(
       id: 'wizard_section',
-      name: 'Section Per Page Wizard',
-      description: 'Each section is presented on a separate step.',
-      icon: Icons.pages_outlined,
+      name: 'Section Per Page',
+      description: 'Wizard layout showing exactly one section card per step.',
+      icon: Icons.arrow_forward_ios,
       category: 'Wizard / Step',
     ),
     LayoutOption(
       id: 'wizard_question',
-      name: 'Question Per Page Wizard',
-      description: 'One single question shown at a time with progress tracker.',
-      icon: Icons.looks_one,
+      name: 'Question Per Page',
+      description: 'Increases completion rate by showing one question card.',
+      icon: Icons.crop_square_sharp,
       category: 'Wizard / Step',
     ),
     LayoutOption(
       id: 'wizard_hybrid',
-      name: 'Hybrid Wizard',
-      description: 'Multiple questions grouped together per wizard step.',
-      icon: Icons.dashboard_customize_outlined,
+      name: 'Hybrid Page View',
+      description: 'Balances sections and questions in page splits.',
+      icon: Icons.wb_iridescent,
       category: 'Wizard / Step',
     ),
     LayoutOption(
       id: 'wizard_mobile',
-      name: 'Full Screen Mobile Wizard',
-      description: 'Immersive full screen mobile onboarding experience.',
-      icon: Icons.phone_android,
+      name: 'FullScreen Mobile Step',
+      description: 'Optimized touch layout stretching elements to full bounds.',
+      icon: Icons.stay_current_portrait,
       category: 'Wizard / Step',
     ),
     LayoutOption(
       id: 'wizard_swipe',
       name: 'Swipe Card Wizard',
-      description: 'Card based swipe transition between pages.',
-      icon: Icons.swipe,
+      description: 'Gestures-driven card layout allowing swipe navigation.',
+      icon: Icons.view_carousel,
       category: 'Wizard / Step',
     ),
     LayoutOption(
       id: 'nav_left',
       name: 'Left Sidebar Navigation',
-      description: 'Jump to sections using a sticky left sidebar menu.',
-      icon: Icons.input_sharp,
+      description: 'Places interactive tab indices on the left sidebar.',
+      icon: Icons.align_horizontal_left,
       category: 'Navigation',
     ),
     LayoutOption(
       id: 'nav_right',
       name: 'Right Sidebar Navigation',
-      description: 'Jump to sections using a sticky right sidebar menu.',
-      icon: Icons.output_sharp,
+      description: 'Places structural layouts index navigation on the right.',
+      icon: Icons.align_horizontal_right,
       category: 'Navigation',
     ),
     LayoutOption(
       id: 'nav_top',
-      name: 'Top Step Navigation',
-      description: 'Quick top steps navigation representing sections.',
-      icon: Icons.tab_unselected,
+      name: 'Top Step Nav Tabs',
+      description: 'Classic stepper design header buttons for tab views.',
+      icon: Icons.view_day_outlined,
       category: 'Navigation',
     ),
     LayoutOption(
       id: 'nav_tabs',
-      name: 'Tabs Layout',
-      description: 'Classic horizontal tab controller for sections.',
+      name: 'Horizontal Tabs Layout',
+      description: 'Wraps sections in cleanly styled sliding tab headers.',
       icon: Icons.tab,
       category: 'Navigation',
     ),
     LayoutOption(
       id: 'nav_breadcrumb',
-      name: 'Breadcrumb Navigation Layout',
-      description: 'Chronological path navigation hierarchy.',
-      icon: Icons.arrow_right_alt,
+      name: 'Breadcrumb Navigation',
+      description: 'Shows hierarchical step indicators inside layouts.',
+      icon: Icons.linear_scale,
+      category: 'Navigation',
+    ),
+    LayoutOption(
+      id: 'nav_tree',
+      name: 'Tree Navigation Form',
+      description: 'Renders collapsible folder-like tree items on the side.',
+      icon: Icons.account_tree_outlined,
       category: 'Navigation',
     ),
     LayoutOption(
       id: 'prog_horizontal',
-      name: 'Horizontal Progress Stepper',
-      description: 'Visual horizontal dots representing progress.',
-      icon: Icons.commit,
+      name: 'Horizontal Stepper',
+      description: 'Presents progress status indices in horizontal loops.',
+      icon: Icons.linear_scale_sharp,
       category: 'Progress',
     ),
     LayoutOption(
       id: 'prog_vertical',
-      name: 'Vertical Progress Stepper',
-      description: 'Vertical layout showing progress status checklist.',
+      name: 'Vertical Stepper Form',
+      description: 'Steps rendered vertically alongside content cards.',
       icon: Icons.more_vert,
       category: 'Progress',
     ),
     LayoutOption(
       id: 'prog_percent',
-      name: 'Percentage Completion Layout',
-      description: 'Clear percentage status indicator update.',
-      icon: Icons.percent,
+      name: 'Percentage Indicator',
+      description: 'Visual circular dial indicator tracking filled elements.',
+      icon: Icons.donut_large,
       category: 'Progress',
     ),
     LayoutOption(
       id: 'prog_checklist',
-      name: 'Checklist Completion Layout',
-      description: 'Checklist checklist tracker.',
-      icon: Icons.fact_check_outlined,
+      name: 'Checklist Completion',
+      description: 'Shows status checkpoints validating user details.',
+      icon: Icons.check_box,
       category: 'Progress',
     ),
     LayoutOption(
-      id: 'card_question',
-      name: 'Question Card Layout',
-      description: 'Each question resides in its own micro container.',
-      icon: Icons.crop_square_outlined,
-      category: 'Card',
-    ),
-    LayoutOption(
-      id: 'card_section',
-      name: 'Section Card Layout',
-      description: 'Renders sections inside deep card shapes.',
-      icon: Icons.picture_in_picture_alt,
-      category: 'Card',
-    ),
-    LayoutOption(
-      id: 'kanban_sections',
-      name: 'Kanban Style Form Sections',
-      description: 'Interactive boards displaying section completeness.',
-      icon: Icons.view_column_outlined,
-      category: 'Card',
-    ),
-    LayoutOption(
-      id: 'accordion_multiple',
-      name: 'Accordion Multiple Open',
-      description: 'Multiple sections can expand or collapse simultaneously.',
-      icon: Icons.unfold_more_double,
-      category: 'Single Page',
-    ),
-    LayoutOption(
-      id: 'nav_tree',
-      name: 'Tree Navigation Form',
-      description: 'Hierarchical nested folder trees representing sections.',
-      icon: Icons.account_tree_outlined,
-      category: 'Navigation',
-    ),
-    LayoutOption(
       id: 'prog_bar',
-      name: 'Linear Progress Bar',
-      description: 'Top persistent completion bar indicator.',
-      icon: Icons.linear_scale,
+      name: 'Linear Progress Form',
+      description: 'Draws a flat horizontal progress indicator header.',
+      icon: Icons.trending_flat,
       category: 'Progress',
     ),
     LayoutOption(
       id: 'prog_step',
-      name: 'Numerical Step Indicator',
-      description: 'Numerical bubbles showing completed steps.',
-      icon: Icons.looks_one_outlined,
+      name: 'Step Count Indicators',
+      description: 'Displays a numeric index counter inside form header.',
+      icon: Icons.pin_end,
       category: 'Progress',
+    ),
+    LayoutOption(
+      id: 'card_question',
+      name: 'Question Cards',
+      description: 'Draws an individual layout frame card for each question.',
+      icon: Icons.view_headline_rounded,
+      category: 'Card',
+    ),
+    LayoutOption(
+      id: 'kanban_sections',
+      name: 'Kanban Board Sections',
+      description: 'Interactive board columns separating section questions.',
+      icon: Icons.view_week,
+      category: 'Card',
     ),
     LayoutOption(
       id: 'adv_conversational',
       name: 'Conversational Form',
-      description: 'Focused overlays prompting sequentially.',
-      icon: Icons.text_snippet_outlined,
+      description: 'Renders exactly one active question focusing context.',
+      icon: Icons.chat_bubble_outline_outlined,
       category: 'Advanced',
     ),
     LayoutOption(
       id: 'adv_chat',
-      name: 'Chat Style Form',
-      description: 'Interactive AI dialogue capturing inputs.',
-      icon: Icons.chat_bubble_outline,
+      name: 'Chat Style Layout',
+      description: 'Renders questions side-by-side in dialogue bubble streams.',
+      icon: Icons.forum_outlined,
       category: 'Advanced',
     ),
     LayoutOption(
       id: 'adv_drawer',
-      name: 'Drawer Styled Form',
-      description: 'Form panel slides in from the right edge.',
-      icon: Icons.view_sidebar_outlined,
+      name: 'Sliding Drawer Form',
+      description: 'Collapsible sliding panel wrapper hosting layouts.',
+      icon: Icons.read_more,
       category: 'Advanced',
     ),
     LayoutOption(
       id: 'adv_modal',
-      name: 'Modal Dialog Form',
-      description: 'Form displays centered inside a popup window.',
+      name: 'Pop-up Modal Form',
+      description: 'Dialog lightbox overlay wrapping section inputs.',
       icon: Icons.picture_in_picture_outlined,
       category: 'Advanced',
     ),
     LayoutOption(
       id: 'adv_conditional',
-      name: 'Conditional Dynamic Form',
-      description: 'Show or hide elements depending on answers.',
-      icon: Icons.alt_route,
+      name: 'Conditional Fields',
+      description: 'Layout dependencies showing/hiding form sections.',
+      icon: Icons.rule,
       category: 'Advanced',
     ),
     LayoutOption(
       id: 'adv_review',
-      name: 'Review Before Submit Layout',
+      name: 'Review & Submit Form',
       description: 'Overview display of answers before final submission.',
       icon: Icons.preview,
       category: 'Advanced',
     ),
   ];
 
-  // Sync builder configuration parameters with the static global FormThemeState
-  void _syncThemeState() {
-    FormThemeState.primary = _themeConfig.primary;
-    FormThemeState.background = _themeConfig.background;
-    FormThemeState.cardColor = _themeConfig.cardColor;
-    FormThemeState.textColor = _themeConfig.textColor;
-
-    if (_themeConfig.fontFamily == FontStylePreset.roboto) {
-      FormThemeState.fontFamily = 'Roboto';
-    } else if (_themeConfig.fontFamily == FontStylePreset.poppins) {
-      FormThemeState.fontFamily = 'Poppins';
-    } else if (_themeConfig.fontFamily == FontStylePreset.lora) {
-      FormThemeState.fontFamily = 'Lora';
-    } else {
-      FormThemeState.fontFamily = 'Instrument Sans';
-    }
-
-    FormThemeState.borderRadius = _themeConfig.borderRadius;
-    FormThemeState.titleSize = _themeConfig.titleSize;
-    FormThemeState.sectionSize = _themeConfig.sectionSize;
-    FormThemeState.questionSize = _themeConfig.questionSize;
-  }
-
   void _resetConfig() {
-    setState(() {
-      _themeConfig = const FormThemeConfig();
-      _animConfig = const AnimationConfig();
-      _componentConfig = const ComponentStyleConfig();
-      _syncThemeState();
-    });
+    ref.read(formBuilderProvider.notifier).execute(const UpdateThemeCommand(FormThemeConfig()));
+    ref.read(formBuilderProvider.notifier).execute(const UpdateComponentStyleCommand(ComponentStyleConfig()));
+    ref.read(formBuilderProvider.notifier).execute(const UpdateAnimationCommand(AnimationConfig()));
   }
 
   void _randomizeConfig() {
     final random = Random();
-    setState(() {
-      final randomColor = Color.fromARGB(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
-      _themeConfig = FormThemeConfig(
-        primary: randomColor,
-        secondary: randomColor.withValues(alpha: 0.7),
-        accent: randomColor.withValues(alpha: 0.5),
-        textColor: random.nextBool() ? const Color(0xFF121218) : const Color(0xFFFFFFFF),
-        background: random.nextBool() ? const Color(0xFFF7F7F8) : const Color(0xFF1B1B21),
-        fontFamily: FontStylePreset.values[random.nextInt(FontStylePreset.values.length)],
-        borderRadius: [0.0, 6.0, 12.0, 24.0][random.nextInt(4)],
-      );
-
-      _syncThemeState();
-    });
+    final randomColor = Color.fromARGB(255, random.nextInt(256), random.nextInt(256), random.nextInt(256));
+    final randomTheme = FormThemeConfig(
+      primary: randomColor,
+      textColor: random.nextBool() ? const Color(0xFF121218) : const Color(0xFFFFFFFF),
+      background: random.nextBool() ? const Color(0xFFF7F7F8) : const Color(0xFF1B1B21),
+      fontFamily: FontStylePreset.values[random.nextInt(FontStylePreset.values.length)],
+      borderRadius: [0.0, 6.0, 12.0, 24.0][random.nextInt(4)],
+    );
+    ref.read(formBuilderProvider.notifier).execute(UpdateThemeCommand(randomTheme));
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(formBuilderProvider);
+    final notifier = ref.read(formBuilderProvider.notifier);
 
-    return Scaffold(
-      backgroundColor: AdiyogiColors.shellBackground,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // --- TOP TOOLBAR ---
-            _buildTopToolbar(context),
-            Divider(height: 1, color: AdiyogiColors.shellBorder),
+    return FormThemeScope(
+      themeConfig: state.themeConfig,
+      componentConfig: state.componentConfig,
+      skeletonMode: state.skeletonMode,
+      child: Scaffold(
+        backgroundColor: AdiyogiColors.shellBackground,
+        body: SafeArea(
+          child: Column(
+            children: [
+              // --- TOP TOOLBAR ---
+              _buildTopToolbar(context, state, notifier),
+              Divider(height: 1, color: AdiyogiColors.shellBorder),
 
-            // --- MAIN CONTENT SPLIT ---
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // --- LEFT SIDEBAR (Width 340) ---
-                  _wizardStep == 1
-                      ? LayoutSelectorPanel(
-                          layouts: _layouts,
-                          selectedLayoutId: _selectedLayoutId,
-                          selectedCategory: _selectedCategory,
-                          searchQuery: _searchQuery,
-                          onLayoutSelected: (id) => setState(() => _selectedLayoutId = id),
-                          onCategorySelected: (cat) => setState(() => _selectedCategory = cat),
-                          onSearchChanged: (val) => setState(() => _searchQuery = val),
-                          onContinue: () => setState(() => _wizardStep = 2),
-                        )
-                      : StyleSelectorPanel(
-                          designCategories: _designCategories,
-                          activeDesignCategory: _activeDesignCategory,
-                          themeConfig: _themeConfig,
-                          animConfig: _animConfig,
-                          componentConfig: _componentConfig,
-                          onCategoryTapped: (id) => setState(() => _activeDesignCategory = id),
-                          onThemeConfigChanged: (cfg) => setState(() => _themeConfig = cfg),
-                          onAnimConfigChanged: (cfg) => setState(() => _animConfig = cfg),
-                          onComponentConfigChanged: (cfg) => setState(() => _componentConfig = cfg),
-                          onBack: () => setState(() => _wizardStep = 1),
-                          onSyncTheme: _syncThemeState,
-                        ),
-                   VerticalDivider(width: 1, color: AdiyogiColors.shellBorder),
+              // --- MAIN CONTENT SPLIT ---
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // --- LEFT SIDEBAR ---
+                    state.wizardStep == 1
+                        ? LayoutSelectorPanel(
+                            layouts: _layouts,
+                            selectedLayoutId: state.selectedLayoutId,
+                            selectedCategory: state.selectedCategory,
+                            searchQuery: state.searchQuery,
+                            onLayoutSelected: notifier.updateSelectedLayout,
+                            onCategorySelected: notifier.updateSelectedCategory,
+                            onSearchChanged: notifier.updateSearchQuery,
+                            onContinue: () => notifier.updateWizardStep(2),
+                          )
+                        : StyleSelectorPanel(
+                            designCategories: _designCategories,
+                            activeDesignCategory: state.activeDesignCategory,
+                            themeConfig: state.themeConfig,
+                            animConfig: state.animConfig,
+                            componentConfig: state.componentConfig,
+                            onCategoryTapped: notifier.updateActiveDesignCategory,
+                            onThemeConfigChanged: (cfg) => notifier.execute(UpdateThemeCommand(cfg)),
+                            onAnimConfigChanged: (cfg) => notifier.execute(UpdateAnimationCommand(cfg)),
+                            onComponentConfigChanged: (cfg) => notifier.execute(UpdateComponentStyleCommand(cfg)),
+                            onBack: () => notifier.updateWizardStep(1),
+                            onSyncTheme: () {},
+                          ),
+                    VerticalDivider(width: 1, color: AdiyogiColors.shellBorder),
 
-                  // --- RIGHT PREVIEW CANVAS ---
-                  Expanded(
-                    child: _buildRightPreview(context),
-                  ),
-                ],
+                    // --- RIGHT PREVIEW CANVAS ---
+                    Expanded(
+                      child: _buildRightPreview(context, state, notifier),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildTopToolbar(BuildContext context) {
+  Widget _buildTopToolbar(BuildContext context, FormBuilderState state, FormBuilderNotifier notifier) {
     return Container(
       color: AdiyogiColors.shellWhite,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -468,65 +424,52 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
               ),
               const SizedBox(width: 12),
               Text(
-                _wizardStep == 1 ? 'Form Layout Explorer' : 'Form Layout & Theme Builder',
+                state.wizardStep == 1 ? 'Form Layout Explorer' : 'Form Layout & Theme Builder',
                 style: AdiyogiTextStyles.sectionHeading(context).copyWith(fontSize: 18),
               ),
             ],
           ),
 
-          // Toolbar center search if Step 1
-          if (_wizardStep == 1)
-            Container(
-              width: 320,
-              height: 38,
-              decoration: BoxDecoration(
-                color: AdiyogiColors.shellBackground,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AdiyogiColors.shellBorder),
-              ),
-              child: TextField(
-                onChanged: (val) => setState(() => _searchQuery = val),
-                decoration: const InputDecoration(
-                  hintText: 'Search layout catalog...',
-                  hintStyle: TextStyle(fontSize: 13, color: Colors.grey),
-                  prefixIcon: Icon(Icons.search, size: 16, color: Colors.grey),
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(vertical: 10),
-                ),
-              ),
-            )
-          else
-            // Actions for Step 2
-            Row(
-              children: [
-                TextButton.icon(
-                  onPressed: _resetConfig,
-                  icon: const Icon(Icons.restart_alt, size: 16),
-                  label: const Text('Reset', style: TextStyle(fontSize: 12)),
-                  style: TextButton.styleFrom(foregroundColor: AdiyogiColors.shellGreyBody),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton.icon(
-                  onPressed: _randomizeConfig,
-                  icon: const Icon(Icons.shuffle, size: 16),
-                  label: const Text('Randomize', style: TextStyle(fontSize: 12)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AdiyogiColors.shellCharcoal,
-                    foregroundColor: AdiyogiColors.shellWhite,
-                  ),
-                ),
-              ],
-            ),
-
-          // Right Controls: Devices
+          // Toolbar center Actions
           Row(
             children: [
-              _buildDeviceButton(Icons.desktop_windows, 'Desktop'),
-              const SizedBox(width: 4),
-              _buildDeviceButton(Icons.tablet_mac, 'Tablet'),
-              const SizedBox(width: 4),
-              _buildDeviceButton(Icons.phone_iphone, 'Mobile'),
+              IconButton(
+                icon: const Icon(Icons.undo),
+                tooltip: 'Undo',
+                onPressed: notifier.canUndo ? notifier.undo : null,
+              ),
+              IconButton(
+                icon: const Icon(Icons.redo),
+                tooltip: 'Redo',
+                onPressed: notifier.canRedo ? notifier.redo : null,
+              ),
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                onPressed: _resetConfig,
+                icon: const Icon(Icons.refresh, size: 16, color: AdiyogiColors.shellCharcoal),
+                label: const Text('Reset', style: TextStyle(color: AdiyogiColors.shellCharcoal, fontSize: 12)),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                onPressed: _randomizeConfig,
+                icon: const Icon(Icons.shuffle, size: 16),
+                label: const Text('Randomize', style: TextStyle(fontSize: 12)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AdiyogiColors.shellCharcoal,
+                  foregroundColor: AdiyogiColors.shellWhite,
+                ),
+              ),
+            ],
+          ),
+
+          // Preview Canvas controllers
+          Row(
+            children: [
+              _buildDeviceButton(Icons.desktop_windows, 'Desktop', state, notifier),
+              const SizedBox(width: 8),
+              _buildDeviceButton(Icons.tablet_mac, 'Tablet', state, notifier),
+              const SizedBox(width: 8),
+              _buildDeviceButton(Icons.phone_iphone, 'Mobile', state, notifier),
             ],
           ),
         ],
@@ -534,10 +477,10 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
     );
   }
 
-  Widget _buildDeviceButton(IconData icon, String mode) {
-    final active = _previewMode == mode;
+  Widget _buildDeviceButton(IconData icon, String mode, FormBuilderState state, FormBuilderNotifier notifier) {
+    final active = state.previewMode == mode;
     return OutlinedButton.icon(
-      onPressed: () => setState(() => _previewMode = mode),
+      onPressed: () => notifier.updatePreviewMode(mode),
       icon: Icon(icon, size: 16, color: active ? AdiyogiColors.shellWhite : AdiyogiColors.shellCharcoal),
       label: Text(mode, style: TextStyle(fontSize: 12, color: active ? AdiyogiColors.shellWhite : AdiyogiColors.shellCharcoal)),
       style: OutlinedButton.styleFrom(
@@ -549,14 +492,13 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
     );
   }
 
-  Widget _buildRightPreview(BuildContext context) {
-    // Determine canvas constraints based on previewMode
+  Widget _buildRightPreview(BuildContext context, FormBuilderState state, FormBuilderNotifier notifier) {
     double? maxWidth;
     double? height;
-    if (_previewMode == 'Mobile') {
+    if (state.previewMode == 'Mobile') {
       maxWidth = 375;
       height = 740;
-    } else if (_previewMode == 'Tablet') {
+    } else if (state.previewMode == 'Tablet') {
       maxWidth = 768;
       height = 960;
     }
@@ -579,11 +521,9 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
                   ),
                   const SizedBox(width: 16),
                   ToggleButtons(
-                    isSelected: [FormThemeState.skeletonMode, !FormThemeState.skeletonMode],
+                    isSelected: [state.skeletonMode, !state.skeletonMode],
                     onPressed: (index) {
-                      setState(() {
-                        FormThemeState.skeletonMode = index == 0;
-                      });
+                      notifier.updateSkeletonMode(index == 0);
                     },
                     borderRadius: BorderRadius.circular(6),
                     constraints: const BoxConstraints(minHeight: 24, minWidth: 70),
@@ -595,7 +535,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
                 ],
               ),
               Text(
-                'Layout: ${_layouts.firstWhere((element) => element.id == _selectedLayoutId).name}',
+                'Layout: ${_layouts.firstWhere((element) => element.id == state.selectedLayoutId).name}',
                 style: AdiyogiTextStyles.uiMicro(context),
               ),
             ],
@@ -634,7 +574,7 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          _renderActiveLayout(),
+                          _renderActiveLayout(state, notifier),
                           const SizedBox(height: 48),
                         ],
                       ),
@@ -649,100 +589,77 @@ class _NewFormBuilderPageState extends State<NewFormBuilderPage> {
     );
   }
 
-  Widget _renderActiveLayout() {
-    switch (_selectedLayoutId) {
+  Widget _renderActiveLayout(FormBuilderState state, FormBuilderNotifier notifier) {
+    final values = state.formValues;
+    final callback = notifier.updateFormValue;
+
+    switch (state.selectedLayoutId) {
       case 'classic':
-        return ClassicLongForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return ClassicLongForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'collapsible':
-        return CollapsibleSectionsForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return CollapsibleSectionsForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'accordion_single':
-        return AccordionSingleOpenForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return AccordionSingleOpenForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'two_col':
-        return TwoColumnForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return TwoColumnForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'three_col':
-        return ThreeColumnGridForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return ThreeColumnGridForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'wizard_section':
-        return SectionPerPageWizard(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return SectionPerPageWizard(schema: _schema, formValues: values, onValueChanged: callback);
       case 'wizard_question':
-        return QuestionPerPageWizard(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return QuestionPerPageWizard(schema: _schema, formValues: values, onValueChanged: callback);
       case 'wizard_hybrid':
-        return HybridWizard(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return HybridWizard(schema: _schema, formValues: values, onValueChanged: callback);
       case 'wizard_mobile':
-        return FullScreenMobileWizard(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return FullScreenMobileWizard(schema: _schema, formValues: values, onValueChanged: callback);
       case 'wizard_swipe':
-        return SwipeCardWizard(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return SwipeCardWizard(schema: _schema, formValues: values, onValueChanged: callback);
       case 'nav_left':
-        return LeftSidebarNavigationForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return LeftSidebarNavigationForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'nav_right':
-        return RightSidebarNavigationForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return RightSidebarNavigationForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'nav_top':
-        return TopStepNavigationForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return TopStepNavigationForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'nav_tabs':
-        return TabsLayoutForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return TabsLayoutForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'nav_breadcrumb':
-        return BreadcrumbNavigationLayout(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return BreadcrumbNavigationLayout(schema: _schema, formValues: values, onValueChanged: callback);
       case 'prog_horizontal':
-        return HorizontalProgressStepperForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return HorizontalProgressStepperForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'prog_vertical':
-        return VerticalProgressStepperForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return VerticalProgressStepperForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'prog_percent':
-        return PercentageCompletionForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return PercentageCompletionForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'prog_checklist':
-        return ChecklistCompletionForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return ChecklistCompletionForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'card_question':
-        return QuestionCardForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return QuestionCardForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'card_section':
-        return SectionCardForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return SectionCardForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'kanban_sections':
-        return KanbanStyleFormSections(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return KanbanStyleFormSections(schema: _schema, formValues: values, onValueChanged: callback);
       case 'accordion_multiple':
-        return AccordionMultipleOpenForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return AccordionMultipleOpenForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'nav_tree':
-        return TreeNavigationForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return TreeNavigationForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'prog_bar':
-        return ProgressBarForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return ProgressBarForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'prog_step':
-        return StepIndicatorForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return StepIndicatorForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'adv_conversational':
-        return ConversationalForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return ConversationalForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'adv_chat':
-        return ChatStyleForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return ChatStyleForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'adv_drawer':
-        return DrawerForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return DrawerForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'adv_modal':
-        return ModalForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return ModalForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'adv_conditional':
-        return ConditionalDynamicForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return ConditionalDynamicForm(schema: _schema, formValues: values, onValueChanged: callback);
       case 'adv_review':
-        return ReviewBeforeSubmitLayout(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return ReviewBeforeSubmitLayout(schema: _schema, formValues: values, onValueChanged: callback);
       default:
-        return ClassicLongForm(schema: _schema, formValues: _formValues, onValueChanged: _onFormValueChanged);
+        return ClassicLongForm(schema: _schema, formValues: values, onValueChanged: callback);
     }
   }
-
-  void _onFormValueChanged(String fieldId, dynamic value) {
-    setState(() {
-      _formValues[fieldId] = value;
-    });
-  }
-}
-
-class ThemePresetOption {
-  final String id;
-  final String name;
-  final IconData icon;
-  final Color primary;
-  final Color background;
-  final Color cardColor;
-  final Color textColor;
-
-  const ThemePresetOption({
-    required this.id,
-    required this.name,
-    required this.icon,
-    required this.primary,
-    required this.background,
-    required this.cardColor,
-    required this.textColor,
-  });
 }
