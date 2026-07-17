@@ -626,6 +626,41 @@ class RadioField extends StatelessWidget {
   }
 }
 
+class WizardNavigationRow extends StatelessWidget {
+  final int currentStep;
+  final int totalSteps;
+  final VoidCallback? onPrevious;
+  final VoidCallback? onNext;
+  final String nextLabel;
+
+  const WizardNavigationRow({
+    super.key,
+    required this.currentStep,
+    required this.totalSteps,
+    required this.onPrevious,
+    required this.onNext,
+    this.nextLabel = 'Next',
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        FormNavigationButton(
+          label: 'Previous',
+          primary: false,
+          onPressed: currentStep > 0 ? onPrevious : null,
+        ),
+        FormNavigationButton(
+          label: currentStep < totalSteps - 1 ? nextLabel : 'Submit',
+          onPressed: currentStep < totalSteps - 1 ? onNext : null,
+        ),
+      ],
+    );
+  }
+}
+
 class FormNavigationButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;

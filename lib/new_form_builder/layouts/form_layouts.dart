@@ -301,19 +301,11 @@ class _SectionPerPageWizardState extends State<SectionPerPageWizard> {
             onValueChanged: widget.onValueChanged,
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            FormNavigationButton(
-              label: 'Previous',
-              primary: false,
-              onPressed: _currentStep > 0 ? () => setState(() => _currentStep--) : null,
-            ),
-            FormNavigationButton(
-              label: _currentStep < widget.schema.sections.length - 1 ? 'Next' : 'Submit',
-              onPressed: _currentStep < widget.schema.sections.length - 1 ? () => setState(() => _currentStep++) : null,
-            ),
-          ],
+        WizardNavigationRow(
+          currentStep: _currentStep,
+          totalSteps: widget.schema.sections.length,
+          onPrevious: () => setState(() => _currentStep--),
+          onNext: () => setState(() => _currentStep++),
         ),
       ],
     );
@@ -375,21 +367,12 @@ class _QuestionPerPageWizardState extends State<QuestionPerPageWizard> {
           ),
         ),
         const SizedBox(height: 24),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            FormNavigationButton(
-              label: 'Back',
-              primary: false,
-              onPressed: _currentQuestionIndex > 0 ? () => setState(() => _currentQuestionIndex--) : null,
-            ),
-            FormNavigationButton(
-              label: _currentQuestionIndex < questions.length - 1 ? 'Continue' : 'Submit',
-              onPressed: _currentQuestionIndex < questions.length - 1
-                  ? () => setState(() => _currentQuestionIndex++)
-                  : null,
-            ),
-          ],
+        WizardNavigationRow(
+          currentStep: _currentQuestionIndex,
+          totalSteps: questions.length,
+          onPrevious: () => setState(() => _currentQuestionIndex--),
+          onNext: () => setState(() => _currentQuestionIndex++),
+          nextLabel: 'Continue',
         ),
       ],
     );
@@ -443,19 +426,12 @@ class _HybridWizardState extends State<HybridWizard> {
               ),
             )),
         const SizedBox(height: 24),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            FormNavigationButton(
-              label: 'Back',
-              primary: false,
-              onPressed: _currentStep > 0 ? () => setState(() => _currentStep--) : null,
-            ),
-            FormNavigationButton(
-              label: _currentStep < stepCount - 1 ? 'Next Step' : 'Finish',
-              onPressed: _currentStep < stepCount - 1 ? () => setState(() => _currentStep++) : null,
-            ),
-          ],
+        WizardNavigationRow(
+          currentStep: _currentStep,
+          totalSteps: stepCount,
+          onPrevious: () => setState(() => _currentStep--),
+          onNext: () => setState(() => _currentStep++),
+          nextLabel: 'Next Step',
         ),
       ],
     );
@@ -1036,19 +1012,11 @@ class _HorizontalProgressStepperFormState extends State<HorizontalProgressSteppe
             onValueChanged: widget.onValueChanged,
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            FormNavigationButton(
-              label: 'Previous',
-              primary: false,
-              onPressed: _currentStep > 0 ? () => setState(() => _currentStep--) : null,
-            ),
-            FormNavigationButton(
-              label: _currentStep < widget.schema.sections.length - 1 ? 'Next' : 'Submit',
-              onPressed: _currentStep < widget.schema.sections.length - 1 ? () => setState(() => _currentStep++) : null,
-            ),
-          ],
+        WizardNavigationRow(
+          currentStep: _currentStep,
+          totalSteps: widget.schema.sections.length,
+          onPrevious: () => setState(() => _currentStep--),
+          onNext: () => setState(() => _currentStep++),
         ),
       ],
     );
@@ -1121,19 +1089,11 @@ class _VerticalProgressStepperFormState extends State<VerticalProgressStepperFor
                   onValueChanged: widget.onValueChanged,
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  FormNavigationButton(
-                    label: 'Previous',
-                    primary: false,
-                    onPressed: _currentStep > 0 ? () => setState(() => _currentStep--) : null,
-                  ),
-                  FormNavigationButton(
-                    label: _currentStep < widget.schema.sections.length - 1 ? 'Next' : 'Submit',
-                    onPressed: _currentStep < widget.schema.sections.length - 1 ? () => setState(() => _currentStep++) : null,
-                  ),
-                ],
+              WizardNavigationRow(
+                currentStep: _currentStep,
+                totalSteps: widget.schema.sections.length,
+                onPrevious: () => setState(() => _currentStep--),
+                onNext: () => setState(() => _currentStep++),
               ),
             ],
           ),
