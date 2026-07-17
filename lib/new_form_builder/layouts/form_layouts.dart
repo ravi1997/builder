@@ -120,10 +120,10 @@ class _CollapsibleSectionsFormState extends State<CollapsibleSectionsForm> {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: Material(
-            color: context.themeConfig.cardColor,
+            color: AdiyogiColors.shellWhite,
             clipBehavior: Clip.antiAlias,
             shape: RoundedRectangleBorder(
-              side: BorderSide(color: context.themeConfig.inputColor),
+              side: const BorderSide(color: AdiyogiColors.shellBorder),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -191,10 +191,10 @@ class _AccordionSingleOpenFormState extends State<AccordionSingleOpenForm> {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: Material(
-            color: context.themeConfig.cardColor,
+            color: AdiyogiColors.shellWhite,
             clipBehavior: Clip.antiAlias,
             shape: RoundedRectangleBorder(
-              side: BorderSide(color: context.themeConfig.inputColor),
+              side: const BorderSide(color: AdiyogiColors.shellBorder),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -334,13 +334,12 @@ class _SectionPerPageWizardState extends State<SectionPerPageWizard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     final sec = widget.schema.sections[_currentStep];
     return Column(
       children: [
         LinearProgressIndicator(
           value: (_currentStep + 1) / widget.schema.sections.length,
-          color: theme.primary,
+          color: AdiyogiColors.shellCharcoal,
           backgroundColor: AdiyogiColors.surfaceSubtle,
         ),
         const SizedBox(height: 24),
@@ -388,7 +387,6 @@ class _QuestionPerPageWizardState extends State<QuestionPerPageWizard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     final questions = allQuestions;
     if (questions.isEmpty) return const Text('No questions');
     final question = questions[_currentQuestionIndex];
@@ -402,16 +400,16 @@ class _QuestionPerPageWizardState extends State<QuestionPerPageWizard> {
         const SizedBox(height: 8),
         LinearProgressIndicator(
           value: (_currentQuestionIndex + 1) / questions.length,
-          color: theme.primary,
+          color: AdiyogiColors.shellCharcoal,
           backgroundColor: AdiyogiColors.surfaceSubtle,
         ),
         const SizedBox(height: 32),
         Container(
           padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
-            color: theme.cardColor,
+            color: AdiyogiColors.shellWhite,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: theme.inputColor),
+            border: Border.all(color: AdiyogiColors.shellBorder),
           ),
           child: FormQuestionWidget(
             question: question,
@@ -512,15 +510,14 @@ class _FullScreenMobileWizardState extends State<FullScreenMobileWizard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     final sec = widget.schema.sections[_index];
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 375),
         decoration: BoxDecoration(
-          border: Border.all(color: theme.inputColor, width: 4),
+          border: const Border.fromBorderSide(BorderSide(color: AdiyogiColors.shellBorder, width: 4)),
           borderRadius: BorderRadius.circular(32),
-          color: theme.background,
+          color: AdiyogiColors.shellWhite,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
@@ -560,8 +557,8 @@ class _FullScreenMobileWizardState extends State<FullScreenMobileWizard> {
                         ? () => setState(() => _index++)
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.primary,
-                      foregroundColor: theme.cardColor,
+                      backgroundColor: AdiyogiColors.shellCharcoal,
+                      foregroundColor: AdiyogiColors.shellWhite,
                     ),
                     child: Text(_index < widget.schema.sections.length - 1 ? 'Next' : 'Done'),
                   ),
@@ -597,7 +594,6 @@ class _SwipeCardWizardState extends State<SwipeCardWizard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     return Column(
       children: [
         Text(
@@ -654,9 +650,9 @@ class _SwipeCardWizardState extends State<SwipeCardWizard> {
                   width: 8,
                   height: 8,
                   margin: const EdgeInsets.symmetric(horizontal: 4),
-                  decoration: BoxDecoration(
+                    decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _currentPage == index ? theme.primary : theme.inputColor,
+                    color: _currentPage == index ? AdiyogiColors.shellCharcoal : AdiyogiColors.shellBorder,
                   ),
                 ),
               ),
@@ -695,7 +691,6 @@ class _LeftSidebarNavigationFormState extends State<LeftSidebarNavigationForm> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     final activeSection = widget.schema.sections[_selectedIndex];
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -704,7 +699,7 @@ class _LeftSidebarNavigationFormState extends State<LeftSidebarNavigationForm> {
           width: 160,
           padding: const EdgeInsets.only(right: 16),
           decoration: BoxDecoration(
-            border: Border(right: BorderSide(color: theme.inputColor)),
+            border: const Border(right: BorderSide(color: AdiyogiColors.shellBorder)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -714,7 +709,7 @@ class _LeftSidebarNavigationFormState extends State<LeftSidebarNavigationForm> {
                 onPressed: () => setState(() => _selectedIndex = idx),
                 style: TextButton.styleFrom(
                   alignment: Alignment.centerLeft,
-                  foregroundColor: active ? theme.primary : theme.textColor.withValues(alpha: 0.7),
+                  foregroundColor: active ? AdiyogiColors.shellCharcoal : AdiyogiColors.shellGreyBody,
                 ),
                 child: Text(
                   widget.schema.sections[idx].title,
@@ -762,7 +757,6 @@ class _RightSidebarNavigationFormState extends State<RightSidebarNavigationForm>
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     final activeSection = widget.schema.sections[_selectedIndex];
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -783,7 +777,7 @@ class _RightSidebarNavigationFormState extends State<RightSidebarNavigationForm>
           width: 160,
           padding: const EdgeInsets.only(left: 16),
           decoration: BoxDecoration(
-            border: Border(left: BorderSide(color: theme.inputColor)),
+            border: const Border(left: BorderSide(color: AdiyogiColors.shellBorder)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -793,7 +787,7 @@ class _RightSidebarNavigationFormState extends State<RightSidebarNavigationForm>
                 onPressed: () => setState(() => _selectedIndex = idx),
                 style: TextButton.styleFrom(
                   alignment: Alignment.centerLeft,
-                  foregroundColor: active ? theme.primary : theme.textColor.withValues(alpha: 0.7),
+                  foregroundColor: active ? AdiyogiColors.shellCharcoal : AdiyogiColors.shellGreyBody,
                 ),
                 child: Text(
                   widget.schema.sections[idx].title,
@@ -829,7 +823,6 @@ class _TopStepNavigationFormState extends State<TopStepNavigationForm> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     final activeSection = widget.schema.sections[_selectedIndex];
     return Column(
       children: [
@@ -845,7 +838,7 @@ class _TopStepNavigationFormState extends State<TopStepNavigationForm> {
                   decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
-                        color: active ? theme.primary : Colors.transparent,
+                        color: active ? AdiyogiColors.shellCharcoal : Colors.transparent,
                         width: 2,
                       ),
                     ),
@@ -854,7 +847,7 @@ class _TopStepNavigationFormState extends State<TopStepNavigationForm> {
                     widget.schema.sections[idx].title,
                     style: TextStyle(
                       fontWeight: active ? FontWeight.bold : FontWeight.normal,
-                      color: active ? theme.primary : theme.textColor.withValues(alpha: 0.5),
+                      color: active ? AdiyogiColors.shellCharcoal : AdiyogiColors.shellGreyBody,
                     ),
                   ),
                 ),
@@ -910,15 +903,14 @@ class _TabsLayoutFormState extends State<TabsLayoutForm> with TickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     return Column(
       children: [
         TabBar(
           controller: _tabController,
           isScrollable: true,
-          labelColor: theme.primary,
-          unselectedLabelColor: theme.textColor.withValues(alpha: 0.5),
-          indicatorColor: theme.primary,
+          labelColor: AdiyogiColors.shellCharcoal,
+          unselectedLabelColor: AdiyogiColors.shellGreyBody,
+          indicatorColor: AdiyogiColors.shellCharcoal,
           tabs: widget.schema.sections.map((sec) => Tab(text: sec.title)).toList(),
         ),
         const SizedBox(height: 24),
@@ -967,16 +959,15 @@ class _BreadcrumbNavigationLayoutState extends State<BreadcrumbNavigationLayout>
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     final active = widget.schema.sections[_index];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Text('Form', style: TextStyle(color: theme.textColor.withValues(alpha: 0.5))),
-            Icon(Icons.chevron_right, size: 16, color: theme.textColor.withValues(alpha: 0.5)),
-            Text(active.title, style: TextStyle(fontWeight: FontWeight.bold, color: theme.primary)),
+            Text('Form', style: TextStyle(color: AdiyogiColors.shellGreyBody)),
+            Icon(Icons.chevron_right, size: 16, color: AdiyogiColors.shellGreyBody),
+            Text(active.title, style: const TextStyle(fontWeight: FontWeight.bold, color: AdiyogiColors.shellCharcoal)),
           ],
         ),
         const SizedBox(height: 24),
@@ -1029,7 +1020,6 @@ class _HorizontalProgressStepperFormState extends State<HorizontalProgressSteppe
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     final active = widget.schema.sections[_currentStep];
     return Column(
       children: [
@@ -1043,13 +1033,13 @@ class _HorizontalProgressStepperFormState extends State<HorizontalProgressSteppe
                 CircleAvatar(
                   radius: 12,
                   backgroundColor: activeStep
-                      ? theme.primary
-                      : (completed ? theme.inputColor : AdiyogiColors.surfaceSubtle),
+                      ? AdiyogiColors.shellCharcoal
+                      : (completed ? AdiyogiColors.shellBorder : AdiyogiColors.surfaceSubtle),
                   child: Text(
                     '${idx + 1}',
                     style: TextStyle(
                       fontSize: 10,
-                      color: activeStep || completed ? theme.cardColor : theme.textColor.withValues(alpha: 0.5),
+                      color: activeStep || completed ? AdiyogiColors.shellWhite : AdiyogiColors.shellGreyBody,
                     ),
                   ),
                 ),
@@ -1057,7 +1047,7 @@ class _HorizontalProgressStepperFormState extends State<HorizontalProgressSteppe
                   Container(
                     width: 30,
                     height: 2,
-                    color: completed ? theme.primary : theme.inputColor,
+                    color: completed ? AdiyogiColors.shellCharcoal : AdiyogiColors.shellBorder,
                   ),
               ],
             );
@@ -1105,7 +1095,6 @@ class _VerticalProgressStepperFormState extends State<VerticalProgressStepperFor
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1118,13 +1107,13 @@ class _VerticalProgressStepperFormState extends State<VerticalProgressStepperFor
                 CircleAvatar(
                   radius: 12,
                   backgroundColor: activeStep
-                      ? theme.primary
-                      : (completed ? theme.inputColor : AdiyogiColors.surfaceSubtle),
+                      ? AdiyogiColors.shellCharcoal
+                      : (completed ? AdiyogiColors.shellBorder : AdiyogiColors.surfaceSubtle),
                   child: Text(
                     '${idx + 1}',
                     style: TextStyle(
                       fontSize: 10,
-                      color: activeStep || completed ? theme.cardColor : theme.textColor.withValues(alpha: 0.5),
+                      color: activeStep || completed ? AdiyogiColors.shellWhite : AdiyogiColors.shellGreyBody,
                     ),
                   ),
                 ),
@@ -1132,7 +1121,7 @@ class _VerticalProgressStepperFormState extends State<VerticalProgressStepperFor
                   Container(
                     width: 2,
                     height: 50,
-                    color: completed ? theme.primary : theme.inputColor,
+                    color: completed ? AdiyogiColors.shellCharcoal : AdiyogiColors.shellBorder,
                   ),
               ],
             );
@@ -1183,22 +1172,21 @@ class PercentageCompletionForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     final percent = (completionPercentage * 100).toInt();
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: theme.cardColor,
+            color: AdiyogiColors.shellWhite,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: theme.inputColor),
+            border: Border.all(color: AdiyogiColors.shellBorder),
           ),
           child: Row(
             children: [
               CircularProgressIndicator(
                 value: completionPercentage,
-                color: theme.primary,
+                color: AdiyogiColors.shellCharcoal,
                 backgroundColor: AdiyogiColors.surfaceSubtle,
               ),
               const SizedBox(width: 16),
@@ -1234,16 +1222,15 @@ class ChecklistCompletionForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: theme.cardColor,
+            color: AdiyogiColors.shellWhite,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: theme.inputColor),
+            border: Border.all(color: AdiyogiColors.shellBorder),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1255,7 +1242,7 @@ class ChecklistCompletionForm extends StatelessWidget {
                 return Row(
                   children: [
                     Icon(filled ? Icons.check_circle : Icons.circle_outlined,
-                        size: 16, color: filled ? Colors.green : theme.textColor.withValues(alpha: 0.5)),
+                        size: 16, color: filled ? AdiyogiColors.shellCharcoal : AdiyogiColors.shellGreyBody),
                     const SizedBox(width: 8),
                     Text(sec.title, style: AdiyogiTextStyles.bodyMedium(context)),
                   ],
@@ -1285,15 +1272,14 @@ class QuestionCardForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     final allQuestions = _allQuestions(schema);
     return Column(
       children: allQuestions.map((q) {
         return Card(
           margin: const EdgeInsets.only(bottom: 16),
-          color: theme.cardColor,
+          color: AdiyogiColors.shellWhite,
           shape: RoundedRectangleBorder(
-            side: BorderSide(color: theme.inputColor),
+            side: const BorderSide(color: AdiyogiColors.shellBorder),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
@@ -1368,9 +1354,9 @@ class KanbanStyleFormSections extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(child: _buildColumn(context, 'Incomplete (${incomplete.length})', incomplete, Colors.grey.shade100)),
+        Expanded(child: _buildColumn(context, 'Incomplete (${incomplete.length})', incomplete, AdiyogiColors.shellBackground)),
         const SizedBox(width: 12),
-        Expanded(child: _buildColumn(context, 'Complete (${complete.length})', complete, Colors.green.shade50)),
+        Expanded(child: _buildColumn(context, 'Complete (${complete.length})', complete, AdiyogiColors.shellBackground)),
       ],
     );
   }
@@ -1435,10 +1421,10 @@ class ConditionalDynamicForm extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           margin: const EdgeInsets.only(bottom: 16),
-          color: Colors.amber.shade50,
+          color: AdiyogiColors.shellBackground,
           child: Text(
             'Check "I have a government issued ID card" under Documents to reveal sub-questions dynamically.',
-            style: AdiyogiTextStyles.uiMicro(context).copyWith(color: Colors.amber.shade900),
+            style: AdiyogiTextStyles.uiMicro(context).copyWith(color: AdiyogiColors.shellGreyBody),
           ),
         ),
         if (visibleSections.length != schema.sections.length) ...[
@@ -1478,7 +1464,6 @@ class ReviewBeforeSubmitLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     final totalQuestions = _allQuestions(schema).length;
     final completedQuestions = _allQuestions(schema).where((q) {
       final value = formValues[q.id];
@@ -1509,8 +1494,8 @@ class ReviewBeforeSubmitLayout extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       child: Chip(
                         label: Text('Complete', style: AdiyogiTextStyles.uiMicro(context)),
-                        backgroundColor: theme.primary.withValues(alpha: 0.08),
-                        side: BorderSide(color: theme.inputColor),
+                        backgroundColor: AdiyogiColors.shellBackground,
+                        side: const BorderSide(color: AdiyogiColors.shellBorder),
                       ),
                     ),
                   ),
@@ -1527,7 +1512,7 @@ class ReviewBeforeSubmitLayout extends StatelessWidget {
                     trailing: Icon(
                       answered ? Icons.edit : Icons.radio_button_unchecked,
                       size: 16,
-                      color: answered ? theme.primary : theme.textColor.withValues(alpha: 0.5),
+                      color: answered ? AdiyogiColors.shellCharcoal : AdiyogiColors.shellGreyBody,
                     ),
                   );
                 }),
@@ -1538,7 +1523,7 @@ class ReviewBeforeSubmitLayout extends StatelessWidget {
         const SizedBox(height: 24),
         ElevatedButton(
           onPressed: () {},
-          style: ElevatedButton.styleFrom(backgroundColor: theme.primary),
+          style: ElevatedButton.styleFrom(backgroundColor: AdiyogiColors.shellCharcoal),
           child: const Text('Confirm & Submit'),
         ),
       ],
@@ -1642,7 +1627,7 @@ class _TreeNavigationFormState extends State<TreeNavigationForm> {
                 trailing: Icon(
                   complete ? Icons.check_circle : Icons.radio_button_unchecked,
                   size: 16,
-                  color: complete ? Colors.green : context.themeConfig.textColor.withValues(alpha: 0.5),
+                  color: complete ? AdiyogiColors.shellCharcoal : AdiyogiColors.shellGreyBody,
                 ),
                 onTap: () => setState(() => _selectedSecId = sec.id),
               );
@@ -1686,7 +1671,7 @@ class ProgressBarForm extends StatelessWidget {
       children: [
         LinearProgressIndicator(
           value: completionPercentage,
-          color: context.themeConfig.primary,
+          color: AdiyogiColors.shellCharcoal,
           backgroundColor: AdiyogiColors.surfaceSubtle,
         ),
         const SizedBox(height: 24),
@@ -1723,8 +1708,8 @@ class StepIndicatorForm extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 12,
-              backgroundColor: context.themeConfig.primary,
-              child: Text('1', style: TextStyle(fontSize: 10, color: context.themeConfig.cardColor)),
+              backgroundColor: AdiyogiColors.shellCharcoal,
+              child: const Text('1', style: TextStyle(fontSize: 10, color: AdiyogiColors.shellWhite)),
             ),
             const SizedBox(width: 8),
             Text('Step 1 of $totalSteps', style: AdiyogiTextStyles.labelMedium(context)),
@@ -1802,7 +1787,6 @@ class ChatStyleForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     final questions = _allQuestions(schema);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1812,9 +1796,9 @@ class ChatStyleForm extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: theme.cardColor,
+            color: AdiyogiColors.shellWhite,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: theme.inputColor),
+            border: const Border.fromBorderSide(BorderSide(color: AdiyogiColors.shellBorder)),
           ),
           child: Text(
             'Hello! Please complete the requested details.',
@@ -1852,7 +1836,6 @@ class DrawerForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     final activeQuestion = _firstUnansweredQuestion(schema, formValues);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1871,9 +1854,9 @@ class DrawerForm extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: theme.cardColor,
+                color: AdiyogiColors.shellWhite,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: theme.inputColor),
+                border: const Border.fromBorderSide(BorderSide(color: AdiyogiColors.shellBorder)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1913,13 +1896,12 @@ class ModalForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     final activeQuestion = _firstUnansweredQuestion(schema, formValues);
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 760),
         child: Material(
-          color: theme.cardColor,
+          color: AdiyogiColors.shellWhite,
           elevation: 8,
           borderRadius: BorderRadius.circular(16),
           child: Padding(
