@@ -242,7 +242,7 @@ class SectionCard extends StatelessWidget {
                       width: 160,
                       height: context.themeConfig.sectionSize - 2,
                       decoration: BoxDecoration(
-                        color: context.themeConfig.textColor.withValues(alpha: 0.2),
+                        color: AdiyogiColors.shellGreyBody.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -251,7 +251,7 @@ class SectionCard extends StatelessWidget {
                       width: 240,
                       height: context.themeConfig.questionSize - 4,
                       decoration: BoxDecoration(
-                        color: context.themeConfig.textColor.withValues(alpha: 0.15),
+                        color: AdiyogiColors.shellGreyBody.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(3),
                       ),
                     ),
@@ -544,9 +544,7 @@ class TextInputField extends StatelessWidget {
               width: component.inputStyle == InputStylePreset.underline ? 160 : 120,
               height: component.inputStyle == InputStylePreset.underline ? 2 : 12,
               decoration: BoxDecoration(
-                color: component.inputStyle == InputStylePreset.underline
-                    ? theme.primary.withValues(alpha: 0.35)
-                    : AdiyogiColors.surfaceSubtle,
+                color: AdiyogiColors.surfaceSubtle,
                 borderRadius: BorderRadius.circular(component.inputStyle == InputStylePreset.underline ? 1 : 6),
               ),
             ),
@@ -568,11 +566,11 @@ class TextInputField extends StatelessWidget {
         fillColor: fillColor,
         border: inputBorder,
         enabledBorder: inputBorder,
-        focusedBorder: inputBorder.copyWith(borderSide: BorderSide(color: theme.primary, width: 1.5)),
-        errorBorder: inputBorder.copyWith(borderSide: BorderSide(color: theme.errorColor, width: 1.5)),
-        focusedErrorBorder: inputBorder.copyWith(borderSide: BorderSide(color: theme.errorColor, width: 1.5)),
+        focusedBorder: inputBorder.copyWith(borderSide: const BorderSide(color: AdiyogiColors.shellCharcoal, width: 1.5)),
+        errorBorder: inputBorder.copyWith(borderSide: const BorderSide(color: AdiyogiColors.shellGreyBody, width: 1.5)),
+        focusedErrorBorder: inputBorder.copyWith(borderSide: const BorderSide(color: AdiyogiColors.shellGreyBody, width: 1.5)),
         suffixIcon: suffix,
-        hoverColor: theme.primary.withValues(alpha: 0.04),
+        hoverColor: AdiyogiColors.shellGreyBody.withValues(alpha: 0.04),
         floatingLabelBehavior: component.inputStyle == InputStylePreset.floatingLabel
             ? FloatingLabelBehavior.always
             : FloatingLabelBehavior.never,
@@ -617,13 +615,11 @@ class DropdownField extends StatelessWidget {
               width: component.inputStyle == InputStylePreset.underline ? 120 : 80,
               height: component.inputStyle == InputStylePreset.underline ? 2 : 12,
               decoration: BoxDecoration(
-                color: component.inputStyle == InputStylePreset.underline
-                    ? theme.primary.withValues(alpha: 0.35)
-                    : AdiyogiColors.surfaceSubtle,
+                color: AdiyogiColors.surfaceSubtle,
                 borderRadius: BorderRadius.circular(component.inputStyle == InputStylePreset.underline ? 1 : 6),
               ),
             ),
-            Icon(Icons.keyboard_arrow_down, size: 16, color: context.themeConfig.textColor.withValues(alpha: 0.5)),
+            const Icon(Icons.keyboard_arrow_down, size: 16, color: AdiyogiColors.shellGreyBody),
           ],
         ),
       );
@@ -642,7 +638,7 @@ class DropdownField extends StatelessWidget {
           isExpanded: true,
           style: AdiyogiTextStyles.bodyMedium(context).copyWith(color: context.themeConfig.textColor),
           onChanged: onChanged,
-          dropdownColor: component.inputStyle == InputStylePreset.filled ? theme.cardColor : theme.background,
+          dropdownColor: AdiyogiColors.shellWhite,
           items: options.map((opt) {
             return DropdownMenuItem<String>(
               value: opt,
@@ -669,7 +665,6 @@ class CheckboxField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     final component = context.componentConfig;
     if (context.skeletonMode) {
       return Row(
@@ -677,13 +672,13 @@ class CheckboxField extends StatelessWidget {
           Container(
             width: 18,
             height: 18,
-            decoration: BoxDecoration(
-              color: AdiyogiColors.surfaceSubtle,
-              shape: component.inputStyle == InputStylePreset.rounded ? BoxShape.circle : BoxShape.rectangle,
-              borderRadius: component.inputStyle == InputStylePreset.rounded ? null : BorderRadius.circular(4),
-              border: Border.all(color: context.themeConfig.inputColor),
+              decoration: BoxDecoration(
+                color: AdiyogiColors.surfaceSubtle,
+                shape: component.inputStyle == InputStylePreset.rounded ? BoxShape.circle : BoxShape.rectangle,
+                borderRadius: component.inputStyle == InputStylePreset.rounded ? null : BorderRadius.circular(4),
+                border: const Border.fromBorderSide(BorderSide(color: AdiyogiColors.shellBorder)),
+              ),
             ),
-          ),
           const SizedBox(width: 8),
           Container(
             width: 150,
@@ -703,7 +698,7 @@ class CheckboxField extends StatelessWidget {
         children: [
           Checkbox(
             value: value,
-            activeColor: theme.primary,
+            activeColor: AdiyogiColors.shellCharcoal,
             onChanged: onChanged,
           ),
           const SizedBox(width: 4),
@@ -730,7 +725,6 @@ class RadioField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.themeConfig;
     if (context.skeletonMode) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -745,7 +739,7 @@ class RadioField extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AdiyogiColors.surfaceSubtle,
                     shape: BoxShape.circle,
-                    border: Border.all(color: context.themeConfig.inputColor),
+                    border: const Border.fromBorderSide(BorderSide(color: AdiyogiColors.shellBorder)),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -776,7 +770,7 @@ class RadioField extends StatelessWidget {
                 Radio<String>(
                   value: opt,
                   groupValue: value,
-                  activeColor: theme.primary,
+                  activeColor: AdiyogiColors.shellCharcoal,
                   onChanged: onChanged,
                 ),
                 const SizedBox(width: 4),
@@ -857,7 +851,7 @@ class FormNavigationButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
-          overlayColor: component.buttonStyle == ButtonStylePreset.glass ? theme.primary.withValues(alpha: 0.08) : null,
+          overlayColor: component.buttonStyle == ButtonStylePreset.glass ? AdiyogiColors.shellGreyBody.withValues(alpha: 0.08) : null,
         ),
         child: Text(
           label,

@@ -82,11 +82,10 @@ class BuilderToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final surface = Theme.of(context).colorScheme.surface;
     return Container(
       decoration: BoxDecoration(
-        color: surface,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+        color: const Color(0xFFFFFFFF),
+        border: const Border(bottom: BorderSide(color: Color(0xFFE5E7EB))),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Wrap(
@@ -96,10 +95,16 @@ class BuilderToolbar extends StatelessWidget {
         children: [
           Text(
             'A.D.I.Y.O.G.I Builder',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1B1B21),
+                ),
           ),
           const SizedBox(width: 16),
-          Text('Fields: $totalFields', style: Theme.of(context).textTheme.labelLarge),
+          Text(
+            'Fields: $totalFields',
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(color: const Color(0xFF44454C)),
+          ),
           const SizedBox(width: 8),
           SegmentedButton<bool>(
             segments: const [
@@ -110,8 +115,16 @@ class BuilderToolbar extends StatelessWidget {
             onSelectionChanged: (_) => onPreview(),
           ),
           const SizedBox(width: 16),
-          FilledButton.tonalIcon(onPressed: canUndo ? onUndo : null, icon: const Icon(Icons.undo), label: const Text('Undo')),
-          FilledButton.tonalIcon(onPressed: canRedo ? onRedo : null, icon: const Icon(Icons.redo), label: const Text('Redo')),
+          FilledButton.tonalIcon(
+            onPressed: canUndo ? onUndo : null,
+            icon: const Icon(Icons.undo),
+            label: const Text('Undo'),
+          ),
+          FilledButton.tonalIcon(
+            onPressed: canRedo ? onRedo : null,
+            icon: const Icon(Icons.redo),
+            label: const Text('Redo'),
+          ),
           DropdownButtonHideUnderline(
             child: DropdownButton<SavePayloadVariant>(
               value: savePayloadVariant,
@@ -287,8 +300,8 @@ class BuilderToolbar extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                color: const Color(0xFFF7F7F8),
+                border: const Border.fromBorderSide(BorderSide(color: Color(0xFFE5E7EB))),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Row(
