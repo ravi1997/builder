@@ -409,7 +409,7 @@ class _NewFormBuilderPageState extends ConsumerState<NewFormBuilderPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AdiyogiColors.shellCharcoal,
+                  color: AdiyogiColors.shellGreyBody,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Text(
@@ -426,7 +426,7 @@ class _NewFormBuilderPageState extends ConsumerState<NewFormBuilderPage> {
               const SizedBox(width: 12),
               Text(
                 state.wizardStep == 1 ? 'Form Layout Explorer' : 'Form Layout & Theme Builder',
-                style: AdiyogiTextStyles.sectionHeading(context).copyWith(fontSize: 18),
+                style: AdiyogiTextStyles.sectionHeading(context).copyWith(fontSize: 18, color: AdiyogiColors.shellCharcoal),
               ),
             ],
           ),
@@ -518,7 +518,7 @@ class _NewFormBuilderPageState extends ConsumerState<NewFormBuilderPage> {
                 children: [
                   const Text(
                     'Live Preview',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AdiyogiColors.shellCharcoal),
                   ),
                   const SizedBox(width: 16),
                   ToggleButtons(
@@ -529,15 +529,15 @@ class _NewFormBuilderPageState extends ConsumerState<NewFormBuilderPage> {
                     borderRadius: BorderRadius.circular(6),
                     constraints: const BoxConstraints(minHeight: 24, minWidth: 70),
                     children: const [
-                      Text('Skeleton', style: TextStyle(fontSize: 10)),
-                      Text('Real Text', style: TextStyle(fontSize: 10)),
+                      Text('Skeleton', style: TextStyle(fontSize: 10, color: AdiyogiColors.shellCharcoal)),
+                      Text('Real Text', style: TextStyle(fontSize: 10, color: AdiyogiColors.shellCharcoal)),
                     ],
                   ),
                 ],
               ),
               Text(
                 'Layout: ${_layouts.firstWhere((element) => element.id == state.selectedLayoutId).name}',
-                style: AdiyogiTextStyles.uiMicro(context),
+                style: AdiyogiTextStyles.uiMicro(context).copyWith(color: AdiyogiColors.shellGreyBody),
               ),
             ],
           ),
