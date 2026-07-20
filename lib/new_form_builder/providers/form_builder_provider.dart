@@ -116,11 +116,28 @@ class UpdateAnimationCommand implements FormBuilderCommand {
   }
 }
 
+class UpdateLayoutConfigCommand implements FormBuilderCommand {
+  final FormLayoutConfig layoutConfig;
+  final String? selectedLayoutId;
+
+  const UpdateLayoutConfigCommand(this.layoutConfig, {this.selectedLayoutId});
+
+  @override
+  FormBuilderState execute(FormBuilderState currentState) {
+    return currentState.copyWith(
+      layoutConfig: layoutConfig,
+      selectedLayoutId: selectedLayoutId ?? currentState.selectedLayoutId,
+    );
+  }
+}
+
 class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
   final List<FormBuilderState> _history = [];
-  int _historyIndex = -1;
+  int _historyIndex = 0;
 
-  FormBuilderNotifier() : super(FormBuilderState.initial());
+  FormBuilderNotifier() : super(FormBuilderState.initial()) {
+    _history.add(state);
+  }
 
   bool get canUndo => _historyIndex > 0;
   bool get canRedo => _historyIndex < _history.length - 1;
@@ -130,16 +147,15 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
       _history.removeRange(_historyIndex + 1, _history.length);
     }
     final nextState = command.execute(state);
-    _history.add(state);
-    _historyIndex = _history.length - 1;
+    _history.add(nextState);
+    _historyIndex++;
     state = nextState;
   }
 
   void undo() {
-    if (_historyIndex >= 0) {
-      final prevState = _history[_historyIndex];
+    if (canUndo) {
       _historyIndex--;
-      state = prevState;
+      state = _history[_historyIndex];
     }
   }
 
@@ -152,6 +168,12 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
 
   void updateSelectedLayout(String id) {
     state = state.copyWith(selectedLayoutId: id);
+  }
+
+  void updateLayoutConfig(FormLayoutConfig config, {String? selectedLayoutId}) {
+    execute(
+      UpdateLayoutConfigCommand(config, selectedLayoutId: selectedLayoutId),
+    );
   }
 
   void updateSelectedCategory(String cat) {
@@ -185,9 +207,10 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
   }
 }
 
-final formBuilderProvider = StateNotifierProvider<FormBuilderNotifier, FormBuilderState>((ref) {
-  return FormBuilderNotifier();
-});
+final formBuilderProvider =
+    StateNotifierProvider<FormBuilderNotifier, FormBuilderState>((ref) {
+      return FormBuilderNotifier();
+    });
 
 class FormThemeScope extends InheritedWidget {
   final FormThemeConfig themeConfig;
