@@ -28,4 +28,12 @@ class FormSection {
         'title': title,
         'elements': elements.map((element) => element.toJson()).toList(),
       };
+
+  factory FormSection.fromJson(Map<String, dynamic> json) => FormSection(
+        id: json['id'] as String,
+        title: json['title'] as String,
+        elements: (json['elements'] as List<dynamic>? ?? const [])
+            .map((item) => FormElement.fromJson(Map<String, dynamic>.from(item as Map)))
+            .toList(growable: false),
+      );
 }

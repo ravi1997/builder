@@ -36,4 +36,14 @@ class FormElement {
         'required': required,
         'properties': properties,
       };
+
+  factory FormElement.fromJson(Map<String, dynamic> json) => FormElement(
+        id: json['id'] as String,
+        type: json['type'] as String,
+        label: json['label'] as String,
+        required: json['required'] as bool? ?? false,
+        properties: Map<String, dynamic>.from(
+          json['properties'] as Map? ?? const <String, dynamic>{},
+        ),
+      );
 }
