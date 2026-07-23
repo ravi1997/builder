@@ -3,6 +3,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../domain/adapters/legacy_structure_adapter.dart';
+import '../domain/project/project.dart';
+import '../domain/serialization/collection_experience_serializer.dart';
+import '../domain/versioning/artifact_version.dart';
 import '../models/form_element.dart';
 import '../models/form_section.dart';
 import '../utils/backend_payload_builder.dart';
@@ -25,23 +29,23 @@ class FormBuilderState {
   });
 
   factory FormBuilderState.initial() => FormBuilderState(
-        sections: [
-          FormSection(
-            id: 'section_${DateTime.now().microsecondsSinceEpoch}',
-            title: 'Section 1',
-          ),
-        ],
-        selectedElementId: null,
-        selectedElementIds: const <String>{},
-        canUndo: false,
-        canRedo: false,
-        searchQuery: '',
-        dropPreviewIndex: null,
-        draggingType: null,
-        previewMode: false,
-        revision: 0,
-        savePayloadVariant: SavePayloadVariant.form,
-      );
+    sections: [
+      FormSection(
+        id: 'section_${DateTime.now().microsecondsSinceEpoch}',
+        title: 'Section 1',
+      ),
+    ],
+    selectedElementId: null,
+    selectedElementIds: const <String>{},
+    canUndo: false,
+    canRedo: false,
+    searchQuery: '',
+    dropPreviewIndex: null,
+    draggingType: null,
+    previewMode: false,
+    revision: 0,
+    savePayloadVariant: SavePayloadVariant.form,
+  );
 
   final List<FormSection> sections;
   final String? selectedElementId;
@@ -76,14 +80,19 @@ class FormBuilderState {
   }) {
     return FormBuilderState(
       sections: sections ?? this.sections,
-      selectedElementId:
-          clearSelectedElementId ? null : selectedElementId ?? this.selectedElementId,
+      selectedElementId: clearSelectedElementId
+          ? null
+          : selectedElementId ?? this.selectedElementId,
       selectedElementIds: selectedElementIds ?? this.selectedElementIds,
       canUndo: canUndo ?? this.canUndo,
       canRedo: canRedo ?? this.canRedo,
       searchQuery: searchQuery ?? this.searchQuery,
-      dropPreviewIndex: clearDropPreviewIndex ? null : dropPreviewIndex ?? this.dropPreviewIndex,
-      draggingType: clearDraggingType ? null : draggingType ?? this.draggingType,
+      dropPreviewIndex: clearDropPreviewIndex
+          ? null
+          : dropPreviewIndex ?? this.dropPreviewIndex,
+      draggingType: clearDraggingType
+          ? null
+          : draggingType ?? this.draggingType,
       previewMode: previewMode ?? this.previewMode,
       revision: revision ?? this.revision,
       savePayloadVariant: savePayloadVariant ?? this.savePayloadVariant,
@@ -91,9 +100,10 @@ class FormBuilderState {
   }
 }
 
-final formBuilderProvider = StateNotifierProvider<FormBuilderNotifier, FormBuilderState>(
-  (ref) => FormBuilderNotifier(),
-);
+final formBuilderProvider =
+    StateNotifierProvider<FormBuilderNotifier, FormBuilderState>(
+      (ref) => FormBuilderNotifier(),
+    );
 
 class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
   FormBuilderNotifier() : super(FormBuilderState.initial());
@@ -110,7 +120,10 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
   }
 
   void setSavePayloadVariant(SavePayloadVariant variant) {
-    state = state.copyWith(savePayloadVariant: variant, revision: state.revision + 1);
+    state = state.copyWith(
+      savePayloadVariant: variant,
+      revision: state.revision + 1,
+    );
   }
 
   void startDrag(String type) {
@@ -124,7 +137,10 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
   }
 
   void clearDropPreview() {
-    state = state.copyWith(clearDropPreviewIndex: true, clearDraggingType: true);
+    state = state.copyWith(
+      clearDropPreviewIndex: true,
+      clearDraggingType: true,
+    );
   }
 
   void selectElement(String? id) {
@@ -199,8 +215,14 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
         final ids = state.selectedElementIds;
         final sections = _cloneSections();
         final duplicatedIds = <String>{};
-        for (var sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
-          final originalElements = List<FormElement>.from(sections[sectionIndex].elements);
+        for (
+          var sectionIndex = 0;
+          sectionIndex < sections.length;
+          sectionIndex++
+        ) {
+          final originalElements = List<FormElement>.from(
+            sections[sectionIndex].elements,
+          );
           final nextElements = <FormElement>[];
           for (final element in originalElements) {
             nextElements.add(element);
@@ -212,7 +234,9 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
               nextElements.add(duplicate);
             }
           }
-          sections[sectionIndex] = sections[sectionIndex].copyWith(elements: nextElements);
+          sections[sectionIndex] = sections[sectionIndex].copyWith(
+            elements: nextElements,
+          );
         }
         return sections;
       },
@@ -220,24 +244,43 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
     );
   }
 
-  void moveSelectedElementsToSection(int targetSectionIndex, {int? targetIndex}) {
+  void moveSelectedElementsToSection(
+    int targetSectionIndex, {
+    int? targetIndex,
+  }) {
     if (state.selectedElementIds.isEmpty) return;
-    moveElementsToSection(state.selectedElementIds.toList(growable: false), targetSectionIndex, targetIndex: targetIndex);
+    moveElementsToSection(
+      state.selectedElementIds.toList(growable: false),
+      targetSectionIndex,
+      targetIndex: targetIndex,
+    );
   }
 
-  void moveSelectedElementsFromSectionToSection(int sourceSectionIndex, int targetSectionIndex, {int? targetIndex}) {
-    if (sourceSectionIndex < 0 || sourceSectionIndex >= state.sections.length) return;
+  void moveSelectedElementsFromSectionToSection(
+    int sourceSectionIndex,
+    int targetSectionIndex, {
+    int? targetIndex,
+  }) {
+    if (sourceSectionIndex < 0 || sourceSectionIndex >= state.sections.length)
+      return;
     final sourceIds = state.sections[sourceSectionIndex].elements
         .where((element) => state.selectedElementIds.contains(element.id))
         .map((element) => element.id)
         .toList(growable: false);
     if (sourceIds.isEmpty) return;
-    moveElementsToSection(sourceIds, targetSectionIndex, targetIndex: targetIndex);
+    moveElementsToSection(
+      sourceIds,
+      targetSectionIndex,
+      targetIndex: targetIndex,
+    );
   }
 
   void selectAndMoveSection(int sourceSectionIndex, int targetSectionIndex) {
     selectAllInSection(sourceSectionIndex);
-    moveSelectedElementsFromSectionToSection(sourceSectionIndex, targetSectionIndex);
+    moveSelectedElementsFromSectionToSection(
+      sourceSectionIndex,
+      targetSectionIndex,
+    );
   }
 
   void selectAllInSectionOf(String elementId) {
@@ -248,7 +291,9 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
 
   void selectAllInSection(int sectionIndex) {
     if (sectionIndex < 0 || sectionIndex >= state.sections.length) return;
-    final ids = state.sections[sectionIndex].elements.map((element) => element.id).toSet();
+    final ids = state.sections[sectionIndex].elements
+        .map((element) => element.id)
+        .toSet();
     state = state.copyWith(
       selectedElementId: ids.isEmpty ? null : ids.last,
       selectedElementIds: ids,
@@ -260,8 +305,14 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
     _commit(
       mutate: () {
         final sections = _cloneSections();
-        for (var sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
-          final elements = List<FormElement>.from(sections[sectionIndex].elements);
+        for (
+          var sectionIndex = 0;
+          sectionIndex < sections.length;
+          sectionIndex++
+        ) {
+          final elements = List<FormElement>.from(
+            sections[sectionIndex].elements,
+          );
           final selectedIndexes = <int>[];
           for (var i = 0; i < elements.length; i++) {
             if (state.selectedElementIds.contains(elements[i].id)) {
@@ -274,7 +325,9 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
             elements[index] = elements[index - 1];
             elements[index - 1] = current;
           }
-          sections[sectionIndex] = sections[sectionIndex].copyWith(elements: elements);
+          sections[sectionIndex] = sections[sectionIndex].copyWith(
+            elements: elements,
+          );
         }
         return sections;
       },
@@ -287,8 +340,14 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
     _commit(
       mutate: () {
         final sections = _cloneSections();
-        for (var sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
-          final elements = List<FormElement>.from(sections[sectionIndex].elements);
+        for (
+          var sectionIndex = 0;
+          sectionIndex < sections.length;
+          sectionIndex++
+        ) {
+          final elements = List<FormElement>.from(
+            sections[sectionIndex].elements,
+          );
           final selectedIndexes = <int>[];
           for (var i = 0; i < elements.length; i++) {
             if (state.selectedElementIds.contains(elements[i].id)) {
@@ -302,7 +361,9 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
             elements[index] = elements[index + 1];
             elements[index + 1] = current;
           }
-          sections[sectionIndex] = sections[sectionIndex].copyWith(elements: elements);
+          sections[sectionIndex] = sections[sectionIndex].copyWith(
+            elements: elements,
+          );
         }
         return sections;
       },
@@ -340,10 +401,7 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
 
         final targetSection = sections[targetSectionIndex];
         sections[targetSectionIndex] = targetSection.copyWith(
-          elements: [
-            ...targetSection.elements,
-            ...duplicates,
-          ],
+          elements: [...targetSection.elements, ...duplicates],
         );
         return sections;
       },
@@ -420,7 +478,8 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
     _commit(
       mutate: () {
         final sections = _cloneSections();
-        final targetSectionIndex = sectionIndex ?? (sections.isEmpty ? 0 : sections.length - 1);
+        final targetSectionIndex =
+            sectionIndex ?? (sections.isEmpty ? 0 : sections.length - 1);
         while (sections.length <= targetSectionIndex) {
           sections.add(
             FormSection(
@@ -438,7 +497,9 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
           required: false,
           properties: _defaultPropertiesForType(item.type),
         );
-        final insertIndex = index == null ? elements.length : index.clamp(0, elements.length);
+        final insertIndex = index == null
+            ? elements.length
+            : index.clamp(0, elements.length);
         elements.insert(insertIndex, newElement);
         sections[targetSectionIndex] = target.copyWith(elements: elements);
         return sections;
@@ -448,7 +509,11 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
 
   void reorderElement(int oldIndex, int newIndex) {
     final flat = state.allElements;
-    if (oldIndex < 0 || oldIndex >= flat.length || newIndex < 0 || newIndex > flat.length) return;
+    if (oldIndex < 0 ||
+        oldIndex >= flat.length ||
+        newIndex < 0 ||
+        newIndex > flat.length)
+      return;
     _commit(
       mutate: () {
         final sections = _cloneSections();
@@ -456,14 +521,23 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
         final item = flat[oldIndex];
         final source = _sectionIndexForElementId(item.id);
         if (source == null) return sections;
-        final sourceElements = List<FormElement>.from(sections[source].elements);
+        final sourceElements = List<FormElement>.from(
+          sections[source].elements,
+        );
         sourceElements.removeWhere((element) => element.id == item.id);
         final targetIndex = _sectionIndexForFlatIndex(newIndex, sections);
         final targetSection = sections[targetIndex ?? source];
         final targetElements = List<FormElement>.from(targetSection.elements);
-        targetElements.insert((targetIndex == source) ? sourceElements.length : targetElements.length, item);
+        targetElements.insert(
+          (targetIndex == source)
+              ? sourceElements.length
+              : targetElements.length,
+          item,
+        );
         sections[source] = sections[source].copyWith(elements: sourceElements);
-        sections[targetIndex ?? source] = targetSection.copyWith(elements: targetElements);
+        sections[targetIndex ?? source] = targetSection.copyWith(
+          elements: targetElements,
+        );
         return sections;
       },
     );
@@ -473,21 +547,37 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
     _commit(
       mutate: () {
         final sections = _cloneSections();
-        final elements = List<FormElement>.from(sections[sectionIndex].elements);
+        final elements = List<FormElement>.from(
+          sections[sectionIndex].elements,
+        );
         if (newIndex > oldIndex) newIndex -= 1;
         final item = elements.removeAt(oldIndex);
         elements.insert(newIndex, item);
-        sections[sectionIndex] = sections[sectionIndex].copyWith(elements: elements);
+        sections[sectionIndex] = sections[sectionIndex].copyWith(
+          elements: elements,
+        );
         return sections;
       },
     );
   }
 
-  void moveElementToSection(String elementId, int targetSectionIndex, {int? targetIndex}) {
-    moveElementsToSection([elementId], targetSectionIndex, targetIndex: targetIndex);
+  void moveElementToSection(
+    String elementId,
+    int targetSectionIndex, {
+    int? targetIndex,
+  }) {
+    moveElementsToSection(
+      [elementId],
+      targetSectionIndex,
+      targetIndex: targetIndex,
+    );
   }
 
-  void moveElementsToSection(List<String> elementIds, int targetSectionIndex, {int? targetIndex}) {
+  void moveElementsToSection(
+    List<String> elementIds,
+    int targetSectionIndex, {
+    int? targetIndex,
+  }) {
     _commit(
       mutate: () {
         final sections = _cloneSections();
@@ -512,9 +602,13 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
           }
         }
         for (final sourceSectionIndex in sourceSectionIndices) {
-          final sourceElements = List<FormElement>.from(sections[sourceSectionIndex].elements);
+          final sourceElements = List<FormElement>.from(
+            sections[sourceSectionIndex].elements,
+          );
           sourceElements.removeWhere((element) => ids.contains(element.id));
-          sections[sourceSectionIndex] = sections[sourceSectionIndex].copyWith(elements: sourceElements);
+          sections[sourceSectionIndex] = sections[sourceSectionIndex].copyWith(
+            elements: sourceElements,
+          );
         }
 
         while (sections.length <= targetSectionIndex) {
@@ -528,9 +622,13 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
 
         final targetSection = sections[targetSectionIndex];
         final targetElements = List<FormElement>.from(targetSection.elements);
-        final insertIndex = targetIndex == null ? targetElements.length : targetIndex.clamp(0, targetElements.length);
+        final insertIndex = targetIndex == null
+            ? targetElements.length
+            : targetIndex.clamp(0, targetElements.length);
         targetElements.insertAll(insertIndex, orderedItems);
-        sections[targetSectionIndex] = targetSection.copyWith(elements: targetElements);
+        sections[targetSectionIndex] = targetSection.copyWith(
+          elements: targetElements,
+        );
         return sections;
       },
       preserveSelection: true,
@@ -576,11 +674,16 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
     state = _redoStack.removeLast();
   }
 
-  void _commit({required List<FormSection> Function() mutate, bool preserveSelection = false}) {
+  void _commit({
+    required List<FormSection> Function() mutate,
+    bool preserveSelection = false,
+  }) {
     _undoStack.add(state);
     _redoStack.clear();
     final next = mutate();
-    final nextSelected = preserveSelection ? state.selectedElementId : _selectedIdFor(next);
+    final nextSelected = preserveSelection
+        ? state.selectedElementId
+        : _selectedIdFor(next);
     state = state.copyWith(
       sections: next,
       selectedElementId: nextSelected,
@@ -592,63 +695,72 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
 
   String? _selectedIdFor(List<FormSection> next) {
     final flat = next.expand((section) => section.elements);
-    if (state.selectedElementId != null && flat.any((element) => element.id == state.selectedElementId)) {
+    if (state.selectedElementId != null &&
+        flat.any((element) => element.id == state.selectedElementId)) {
       return state.selectedElementId;
     }
     final last = next.lastWhere(
       (section) => section.elements.isNotEmpty,
-      orElse: () => next.isEmpty ? FormSection(id: 'tmp', title: 'tmp') : next.last,
+      orElse: () =>
+          next.isEmpty ? FormSection(id: 'tmp', title: 'tmp') : next.last,
     );
     return last.elements.isNotEmpty ? last.elements.last.id : null;
   }
 
   void exportJson() {
-    debugPrint(const JsonEncoder.withIndent('  ').convert(buildBackendSavePreview(variant: state.savePayloadVariant)));
+    debugPrint(
+      const JsonEncoder.withIndent(
+        '  ',
+      ).convert(buildBackendSavePreview(variant: state.savePayloadVariant)),
+    );
   }
 
   void save() {
-    debugPrint(const JsonEncoder.withIndent('  ').convert(buildBackendSavePreview(variant: state.savePayloadVariant)));
+    debugPrint(
+      const JsonEncoder.withIndent(
+        '  ',
+      ).convert(buildBackendSavePreview(variant: state.savePayloadVariant)),
+    );
   }
 
-  Map<String, dynamic> buildBackendSavePreview({SavePayloadVariant variant = SavePayloadVariant.form}) {
+  Map<String, dynamic> buildBackendSavePreview({
+    SavePayloadVariant variant = SavePayloadVariant.form,
+  }) {
     switch (variant) {
       case SavePayloadVariant.project:
-        return BackendPayloadBuilder.buildProjectPayload();
+        return CollectionExperienceSerializer.project(
+          Project(
+            id: 'project-crud-0001',
+            name: 'Project CRUD',
+            version: ArtifactVersion(id: 'project-v1'),
+          ),
+        );
       case SavePayloadVariant.form:
-        return BackendPayloadBuilder.buildCurrentSavePreview(sections: state.sections);
+        return CollectionExperienceSerializer.form(
+          LegacyStructureAdapter.toCollectionExperience(
+            id: 'form-crud-0001',
+            sections: state.sections,
+            version: ArtifactVersion(id: 'form-v1'),
+          ),
+        );
       case SavePayloadVariant.section:
-        return BackendPayloadBuilder.buildSectionPayload(
-          sectionUuid: state.sections.first.id,
-          sectionVersionUuid: '${state.sections.first.id}_v1',
-          title: state.sections.first.title,
-          description: null,
-        );
+        return CollectionExperienceSerializer.section(state.sections.first);
       case SavePayloadVariant.question:
-        final question = selectedElement ?? (state.allElements.isNotEmpty ? state.allElements.first : null);
-        if (question == null) {
-          return BackendPayloadBuilder.buildQuestionPayload();
-        }
-        return BackendPayloadBuilder.buildQuestionPayload(
-          questionUuid: question.id,
-          questionVersionUuid: '${question.id}_v1',
-          type: question.type,
-          label: question.label,
-          placeholder: question.properties['placeholder']?.toString(),
-          description: question.properties['description']?.toString(),
-          defaultValue: question.properties.containsKey('defaultValue') ? question.properties['defaultValue'] : null,
-          validationConditions: question.properties['validationConditions'] is List
-              ? List<dynamic>.from(question.properties['validationConditions'] as List)
-              : const [],
-          validationConditionMessages: question.properties['validationConditionMessages'] is Map<String, dynamic>
-              ? Map<String, dynamic>.from(question.properties['validationConditionMessages'] as Map<String, dynamic>)
-              : const {},
-          visibilityConditions: question.properties['visibilityConditions'] is List
-              ? List<dynamic>.from(question.properties['visibilityConditions'] as List)
-              : const [],
-          choices: question.properties['options'] is List ? List<dynamic>.from(question.properties['options'] as List) : const [],
-        );
+        final question =
+            selectedElement ??
+            (state.allElements.isNotEmpty
+                ? state.allElements.first
+                : FormElement(
+                    id: 'question-nested-0001',
+                    type: 'text',
+                    label: 'Question',
+                    required: false,
+                  ));
+        return CollectionExperienceSerializer.question(question);
       case SavePayloadVariant.version:
-        return BackendPayloadBuilder.buildVersionPayload(versionUuid: 'entity-v2', status: 'draft');
+        return CollectionExperienceSerializer.version(
+          ArtifactVersion(id: 'entity-v2'),
+        );
     }
   }
 
@@ -663,7 +775,8 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
 
   int? _sectionIndexForElementId(String id) {
     for (var i = 0; i < state.sections.length; i++) {
-      if (state.sections[i].elements.any((element) => element.id == id)) return i;
+      if (state.sections[i].elements.any((element) => element.id == id))
+        return i;
     }
     return null;
   }
@@ -680,7 +793,11 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
 
   List<FormSection> _cloneSections() {
     return state.sections
-        .map((section) => section.copyWith(elements: List<FormElement>.from(section.elements)))
+        .map(
+          (section) => section.copyWith(
+            elements: List<FormElement>.from(section.elements),
+          ),
+        )
         .toList(growable: true);
   }
 
@@ -691,12 +808,31 @@ class FormBuilderNotifier extends StateNotifier<FormBuilderState> {
       'placeholder': 'Enter value',
       'defaultValue': '',
       'validationRules': <String>[],
-      if (type == 'dropdown' || type == 'radio' || type == 'checkbox' || type == 'checkbox_group' || type == 'multi_radio' || type == 'multi_choice' || type == 'single_choice')
+      if (type == 'dropdown' ||
+          type == 'radio' ||
+          type == 'checkbox' ||
+          type == 'checkbox_group' ||
+          type == 'multi_radio' ||
+          type == 'multi_choice' ||
+          type == 'single_choice')
         'options': options,
-      if (type == 'slider') ...<String, dynamic>{'min': 0.0, 'max': 100.0, 'step': 1.0},
+      if (type == 'slider') ...<String, dynamic>{
+        'min': 0.0,
+        'max': 100.0,
+        'step': 1.0,
+      },
       if (type == 'date') 'range': 'Any date',
-      if (type == 'text' || type == 'textarea' || type == 'email' || type == 'phone' || type == 'url') ...<String, dynamic>{'minLength': 0, 'maxLength': 255},
-      if (type.contains('number') || type == 'integer' || type == 'decimal' || type == 'currency' || type == 'percentage' || type == 'score') ...<String, dynamic>{'minimum': 0, 'maximum': 100},
+      if (type == 'text' ||
+          type == 'textarea' ||
+          type == 'email' ||
+          type == 'phone' ||
+          type == 'url') ...<String, dynamic>{'minLength': 0, 'maxLength': 255},
+      if (type.contains('number') ||
+          type == 'integer' ||
+          type == 'decimal' ||
+          type == 'currency' ||
+          type == 'percentage' ||
+          type == 'score') ...<String, dynamic>{'minimum': 0, 'maximum': 100},
     };
   }
 }

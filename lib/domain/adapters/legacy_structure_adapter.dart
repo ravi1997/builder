@@ -1,4 +1,3 @@
-import '../../models/form_element.dart';
 import '../../models/form_section.dart';
 import '../collection/collection_experience.dart';
 import '../versioning/artifact_version.dart';
@@ -22,7 +21,10 @@ class LegacyStructureAdapter {
   static List<FormSection> sectionsFromSchema(Map<String, dynamic> schema) {
     final rawSections = schema['sections'] as List<dynamic>? ?? const [];
     return rawSections
-        .map((item) => FormSection.fromJson(Map<String, dynamic>.from(item as Map)))
+        .map(
+          (item) =>
+              FormSection.fromJson(Map<String, dynamic>.from(item as Map)),
+        )
         .toList(growable: false);
   }
 
@@ -54,6 +56,5 @@ class LegacyStructureAdapter {
   /// back into the structure editor.
   static List<FormSection> sectionsFromExperience(
     CollectionExperience experience,
-  ) =>
-      sectionsFromSchema(experience.schema);
+  ) => sectionsFromSchema(experience.schema);
 }
